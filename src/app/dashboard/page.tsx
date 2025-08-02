@@ -2,24 +2,22 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-// import { onAuthStateChanged } from 'firebase/auth';
-// import { auth } from '@/lib/auth';
 import { getUserRole } from '@/lib/actions';
 import { Skeleton } from '@/components/ui/skeleton';
+import { auth } from '@/lib/auth';
 
 export default function DashboardRootPage() {
   const router = useRouter();
 
   useEffect(() => {
     const checkAuthAndRedirect = async () => {
-      // In a real app, you would check the auth state here.
-      // For the mock, we assume the user is always logged in.
-      const isUserLoggedIn = true; // Mocking auth state
-      const mockUserId = 'mock-user-id';
+      // Because we've mocked the auth layer, auth.currentUser will always be populated.
+      // This simulates a persistent login session.
+      const user = auth.currentUser;
 
-      if (isUserLoggedIn) {
+      if (user) {
         try {
-          const role = await getUserRole(mockUserId);
+          const role = await getUserRole(user.uid);
           if (role === 'recruiter') {
             router.replace('/dashboard/recruiter');
           } else {
@@ -30,6 +28,8 @@ export default function DashboardRootPage() {
           router.replace('/dashboard/job-seeker');
         }
       } else {
+        // This case should not be reached with the current mock setup,
+        // but it's good practice to keep it as a fallback for real authentication.
         router.replace('/login');
       }
     };
