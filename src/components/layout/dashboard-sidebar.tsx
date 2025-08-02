@@ -61,7 +61,7 @@ export function DashboardSidebar() {
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton href="#" disabled>
+              <SidebarMenuButton href="/dashboard/job-seeker" disabled>
                 <File />
                 My Resumes
               </SidebarMenuButton>
