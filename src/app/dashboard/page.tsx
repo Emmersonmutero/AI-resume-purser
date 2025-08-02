@@ -25,8 +25,6 @@ export default function DashboardRootPage() {
         } catch (error) {
           console.error("Failed to get user role, defaulting to job-seeker.", error);
           router.replace('/dashboard/job-seeker');
-        } finally {
-            setLoading(false);
         }
       } else {
         // User is not logged in, redirect to login page.

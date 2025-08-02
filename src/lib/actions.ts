@@ -262,8 +262,7 @@ export async function signUpWithEmail(formData: FormData) {
         role: role,
         createdAt: new Date(),
     });
-    const userRole = await getUserRole(user.uid);
-    return { success: true, userId: user.uid, role: userRole };
+    return { success: true, userId: user.uid, role: role };
   } catch (error: any) {
     return { error: error.message };
   }
@@ -300,11 +299,13 @@ export async function handleSocialSignIn(user: FirebaseUser) {
                 role: 'job-seeker', // Default role for social sign-in
                 createdAt: serverTimestamp(),
             });
+            return { success: true, role: 'job-seeker' };
         }
-        return { success: true };
+        const userData = userDoc.data();
+        return { success: true, role: userData.role || 'job-seeker' };
     } catch (error) {
         console.error("Error handling social sign-in:", error);
-        return { error: "Failed to set up account after social sign-in." };
+        return { error: "Failed to set up account after social sign-in.", role: null };
     }
 }
 

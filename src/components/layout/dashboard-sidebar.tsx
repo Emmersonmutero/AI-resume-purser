@@ -10,18 +10,34 @@ import {
   SidebarGroup,
   SidebarGroupLabel
 } from '@/components/ui/sidebar';
-import { FileText, LayoutGrid, Briefcase, File, BarChart, Settings, LifeBuoy, LogOut, ChevronRight, Bot } from 'lucide-react';
+import { FileText, LayoutGrid, Briefcase, File, Settings, LifeBuoy, LogOut, Bot } from 'lucide-react';
 import { Button } from '../ui/button';
 import Link from 'next/link';
-import { signOut } from '@/lib/actions';
+import { signOut, getUserRole } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '../ui/card';
 import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { auth } from '@/lib/auth';
+import type { User } from 'firebase/auth';
 
 export function DashboardSidebar() {
     const { toast } = useToast();
     const pathname = usePathname();
     const router = useRouter();
+    const [userRole, setUserRole] = useState<string | null>(null);
+
+     useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged(async (user: User | null) => {
+            if (user) {
+                const role = await getUserRole(user.uid);
+                setUserRole(role);
+            } else {
+                setUserRole(null);
+            }
+        });
+        return () => unsubscribe();
+    }, []);
 
     const handleLogout = async () => {
         const { error } = await signOut();
@@ -49,39 +65,21 @@ export function DashboardSidebar() {
           <SidebarGroupLabel>General</SidebarGroupLabel>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton href="/dashboard/job-seeker" isActive={pathname.startsWith('/dashboard/job-seeker')}>
+              <SidebarMenuButton href="/dashboard" isActive={pathname === '/dashboard' || pathname.startsWith('/dashboard/job-seeker') || pathname.startsWith('/dashboard/recruiter')}>
                 <LayoutGrid />
-                Overview
+                Dashboard
               </SidebarMenuButton>
             </SidebarMenuItem>
              <SidebarMenuItem>
-              <SidebarMenuButton href="/dashboard/recruiter" isActive={pathname.startsWith('/dashboard/recruiter')}>
+              <SidebarMenuButton href="/dashboard/profile" isActive={pathname.startsWith('/dashboard/profile')}>
                 <Briefcase />
-                Recruiter
+                Profile
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton href="/dashboard/job-seeker" disabled>
+              <SidebarMenuButton href="/dashboard/resumes" disabled>
                 <File />
                 My Resumes
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
-         <SidebarGroup>
-          <SidebarGroupLabel>Analysis</SidebarGroupLabel>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton href="#" disabled>
-                <BarChart />
-                Reports
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton href="#" disabled>
-                <Bot />
-                AI Insights
-                 <ChevronRight className="ml-auto" />
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

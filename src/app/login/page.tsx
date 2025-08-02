@@ -39,8 +39,12 @@ export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const redirectToDashboard = () => {
-    router.replace('/dashboard');
+  const redirectToDashboard = (role: string | null) => {
+    if (role === 'recruiter') {
+      router.replace('/dashboard/recruiter');
+    } else {
+      router.replace('/dashboard/job-seeker');
+    }
   };
 
   const handleEmailLogin = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -49,11 +53,11 @@ export default function LoginPage() {
     const formData = new FormData(event.currentTarget);
     const result = await signInWithEmail(formData);
     
-    if (result?.error) {
+    if (result.error) {
       toast({ title: 'Login Failed', description: result.error, variant: 'destructive' });
       setIsLoading(false);
     } else {
-      redirectToDashboard();
+      redirectToDashboard(result.role);
     }
   };
   
@@ -66,7 +70,7 @@ export default function LoginPage() {
       if (socialResult.error) {
           throw new Error(socialResult.error);
       }
-      redirectToDashboard();
+      redirectToDashboard(socialResult.role);
     } catch (error: any) {
       let description = error.message;
       if (error.code === 'auth/operation-not-allowed') {
