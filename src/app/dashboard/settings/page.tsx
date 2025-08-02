@@ -21,16 +21,11 @@ export default function SettingsPage() {
     const [isDeleteLoading, setIsDeleteLoading] = useState(false);
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
     const [deletePassword, setDeletePassword] = useState('');
     const [showDeletePassword, setShowDeletePassword] = useState(false);
 
     const handleChangePassword = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        if (newPassword !== confirmPassword) {
-            toast({ title: 'Error', description: "New passwords don't match.", variant: 'destructive' });
-            return;
-        }
         setIsPasswordLoading(true);
         const result = await updateUserPassword(currentPassword, newPassword);
         if (result.error) {
@@ -39,7 +34,6 @@ export default function SettingsPage() {
             toast({ title: 'Success', description: 'Your password has been changed.' });
             setCurrentPassword('');
             setNewPassword('');
-            setConfirmPassword('');
         }
         setIsPasswordLoading(false);
     };
@@ -82,10 +76,6 @@ export default function SettingsPage() {
                             <div className="grid gap-2">
                                 <Label htmlFor="new-password">New Password</Label>
                                 <Input id="new-password" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required disabled={isPasswordLoading} />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="confirm-password">Confirm New Password</Label>
-                                <Input id="confirm-password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required disabled={isPasswordLoading}/>
                             </div>
                         </CardContent>
                         <CardFooter className="border-t px-6 py-4">
