@@ -27,13 +27,22 @@ export default function DashboardRootPage() {
           router.replace('/dashboard/job-seeker');
         }
       } else {
-        router.replace('/login');
+        // If onAuthStateChanged confirms there's no user, *then* redirect.
+        // We set loading to false to prevent a race condition on initial load.
+        setLoading(false);
       }
     });
 
     return () => unsubscribe();
   }, [router]);
   
+  // Only redirect to login if loading is complete and there's still no user.
+  useEffect(() => {
+    if (!loading && !auth.currentUser) {
+        router.replace('/login');
+    }
+  }, [loading, router]);
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-background p-4">
         <div className="w-full max-w-md space-y-4">
