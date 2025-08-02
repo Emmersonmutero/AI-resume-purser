@@ -14,9 +14,10 @@ import {
 } from '@/ai/flows/match-resume-to-jobs';
 import {z} from 'zod';
 import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, Timestamp } from 'firebase/firestore';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser } from 'firebase/auth';
 import { app } from './firebase';
 import { auth as authInstance } from './auth';
+import { redirect } from 'next/navigation';
 
 const db = getFirestore(app);
 
@@ -290,8 +291,58 @@ export async function signInWithEmail(formData: FormData) {
 export async function signOut() {
   try {
     await firebaseSignOut(authInstance);
-    // Don't redirect from server action, let client handle it.
   } catch (error: any) {
     return { error: error.message };
   }
+}
+
+export async function updateUserProfile(displayName: string) {
+    const user = authInstance.currentUser;
+    if (!user) {
+        return { error: "You must be logged in to update your profile." };
+    }
+    try {
+        await updateProfile(user, { displayName });
+        return { success: true };
+    } catch (error: any) {
+        return { error: error.message };
+    }
+}
+
+const passwordSchema = z.string().min(6, "Password must be at least 6 characters long.");
+
+export async function updateUserPassword(currentPassword: string, newPassword: string) {
+    const user = authInstance.currentUser;
+    if (!user || !user.email) {
+        return { error: "You must be logged in." };
+    }
+
+    const validation = passwordSchema.safeParse(newPassword);
+    if(!validation.success) {
+        return { error: validation.error.errors.map(e => e.message).join(', ') };
+    }
+    
+    try {
+        const credential = EmailAuthProvider.credential(user.email, currentPassword);
+        // Re-authenticate the user to confirm their identity
+        await reauthenticateWithCredential(user, credential);
+        // Now, update the password
+        await updatePassword(user, newPassword);
+        return { success: true };
+    } catch (error: any) {
+        return { error: "Failed to update password. Please check your current password and try again." };
+    }
+}
+
+export async function deleteUserAccount() {
+    const user = authInstance.currentUser;
+    if (!user) {
+        return { error: "You must be logged in to delete your account." };
+    }
+    try {
+        await deleteUser(user);
+        return { success: true };
+    } catch (error: any) {
+        return { error: "Failed to delete account. Please log out and log back in before trying again." };
+    }
 }
