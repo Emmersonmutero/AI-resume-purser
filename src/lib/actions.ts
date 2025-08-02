@@ -14,24 +14,40 @@ import {
 } from '@/ai/flows/match-resume-to-jobs';
 import {z} from 'zod';
 import { fileTypeFromBuffer } from 'file-type';
+import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc } from 'firebase/firestore';
+import { app } from './firebase';
+import { auth } from '@/lib/auth';
+
+const db = getFirestore(app);
+
+export type JobPosting = {
+  id: string;
+  title: string;
+  company: string;
+  description: string;
+  postedBy: string;
+  createdAt: Date;
+}
+
+export type Application = {
+    id: string;
+    jobId: string;
+    jobTitle: string;
+    applicantId: string;
+    applicantName: string;
+    applicantEmail: string;
+    matchScore: number;
+    resumeData: ExtractResumeDataOutput;
+    appliedAt: Date;
+};
 
 export type ProcessedResumeData = {
   resumeData: ExtractResumeDataOutput;
   summary: GenerateResumeSummaryOutput;
   matches: MatchResumeToJobsOutput;
+  jobs: JobPosting[];
 };
 
-// Mock job postings for demonstration
-const MOCK_JOB_POSTINGS = [
-  'Senior Frontend Engineer at TechCorp. Requirements: React, TypeScript, 5+ years experience. Focus on building scalable UI components and design systems.',
-  'Backend Developer at DataMine Inc. Requirements: Node.js, Python, SQL, AWS. Experience with microservices and data pipelines is a plus.',
-  'Full Stack Developer at Innovate LLC. We are looking for a versatile developer proficient in MERN stack. Experience with GraphQL is highly desired.',
-  'Product Manager at SolutionFoundry. Drive product strategy for our new AI platform. Must have a technical background and experience in a SaaS environment.',
-  'UI/UX Designer at CreativeMinds. Create intuitive and beautiful user interfaces for our mobile and web applications. Proficiency in Figma and Adobe Suite required.',
-  'DevOps Engineer at CloudScale. Manage our Kubernetes infrastructure and CI/CD pipelines. Experience with Terraform and Ansible is required.',
-  'Data Scientist at InsightfulData. Analyze large datasets to extract meaningful insights. Strong background in statistics and machine learning with Python (pandas, scikit-learn).',
-  'Junior Software Engineer at BuildIt. Entry-level position for a motivated developer to work on our core product. Knowledge of Java or C# is a plus.',
-];
 
 async function fileToDataUri(file: File): Promise<string> {
     const buffer = await file.arrayBuffer();
@@ -65,6 +81,15 @@ export async function handleResumeUpload(
   }
 
   try {
+    const jobsSnapshot = await getDocs(collection(db, 'jobs'));
+    const jobs: JobPosting[] = jobsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as JobPosting));
+    const jobPostingsText = jobs.map(job => `${job.title} at ${job.company}: ${job.description}`);
+
+    if (jobs.length === 0) {
+        return { data: null, error: "No job postings are available yet. Please check back later." };
+    }
+
+
     const dataUri = await fileToDataUri(file);
 
     // 1. Extract structured data from resume
@@ -96,11 +121,11 @@ export async function handleResumeUpload(
       generateResumeSummary({resumeText}),
       matchResumeToJobs({
         resumeText,
-        jobPostings: MOCK_JOB_POSTINGS,
+        jobPostings: jobPostingsText,
       }),
     ]);
 
-    return {data: {resumeData, summary, matches}, error: null};
+    return {data: {resumeData, summary, matches, jobs}, error: null};
   } catch (error) {
     console.error('AI processing failed:', error);
     return {
@@ -109,4 +134,92 @@ export async function handleResumeUpload(
         'Failed to process resume with AI. The document might be malformed or unreadable.',
     };
   }
+}
+
+const jobPostingSchema = z.object({
+  title: z.string().min(3, "Title must be at least 3 characters long."),
+  company: z.string().min(2, "Company name must be at least 2 characters long."),
+  description: z.string().min(20, "Description must be at least 20 characters long."),
+});
+
+export async function createJobPosting(formData: FormData) {
+    const user = auth.currentUser;
+    if (!user) {
+        return { success: false, error: "You must be logged in to post a job." };
+    }
+
+    const result = jobPostingSchema.safeParse(Object.fromEntries(formData));
+
+    if (!result.success) {
+        const errorMessages = result.error.errors.map(e => e.message).join(', ');
+        return { success: false, error: errorMessages };
+    }
+
+    try {
+        await addDoc(collection(db, "jobs"), {
+            ...result.data,
+            postedBy: user.uid,
+            createdAt: new Date(),
+        });
+        return { success: true };
+    } catch (error) {
+        console.error("Error creating job posting:", error);
+        return { success: false, error: "Failed to create job posting." };
+    }
+}
+
+
+export async function applyForJob(
+    jobId: string,
+    jobTitle: string,
+    matchScore: number,
+    resumeData: ExtractResumeDataOutput
+) {
+    const user = auth.currentUser;
+    if (!user) {
+        return { success: false, error: "You must be logged in to apply." };
+    }
+
+    try {
+        await addDoc(collection(db, 'applications'), {
+            jobId,
+            jobTitle,
+            applicantId: user.uid,
+            applicantName: resumeData.name,
+            applicantEmail: resumeData.email,
+            matchScore,
+            resumeData,
+            appliedAt: new Date(),
+        });
+         return { success: true };
+    } catch (error) {
+        console.error("Error applying for job:", error);
+        return { success: false, error: "Failed to submit application." };
+    }
+}
+
+
+export async function getApplicantsForRecruiter(recruiterId: string): Promise<Application[]> {
+    try {
+        const jobsQuery = query(collection(db, 'jobs'), where('postedBy', '==', recruiterId));
+        const jobsSnapshot = await getDocs(jobsQuery);
+        const jobIds = jobsSnapshot.docs.map(doc => doc.id);
+
+        if (jobIds.length === 0) {
+            return [];
+        }
+
+        const applicationsQuery = query(collection(db, 'applications'), where('jobId', 'in', jobIds));
+        const applicationsSnapshot = await getDocs(applicationsQuery);
+
+        const applicants = applicationsSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        } as Application));
+
+        return applicants.sort((a, b) => b.appliedAt.toMillis() - a.appliedAt.toMillis());
+    } catch (error) {
+        console.error("Error fetching applicants:", error);
+        return [];
+    }
 }

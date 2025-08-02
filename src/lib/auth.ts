@@ -5,6 +5,7 @@ import {
   getAuth,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
+  onAuthStateChanged,
 } from 'firebase/auth';
 import { app } from './firebase';
 import { z } from 'zod';
@@ -12,8 +13,12 @@ import { redirect } from 'next/navigation';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
 
-const auth = getAuth(app);
+const authInstance = getAuth(app);
 const db = getFirestore(app);
+
+// Export a getter for the auth instance to be used in client components
+export const auth = authInstance;
+
 
 const signUpSchema = z.object({
   email: z.string().email(),
@@ -33,7 +38,7 @@ export async function signUpWithEmail(formData: FormData) {
   }
   const { email, password, role } = result.data;
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(authInstance, email, password);
     const user = userCredential.user;
 
     // Save user role to Firestore
@@ -56,7 +61,7 @@ export async function signInWithEmail(formData: FormData) {
   }
   const { email, password } = result.data;
   try {
-    await signInWithEmailAndPassword(auth, email, password);
+    await signInWithEmailAndPassword(authInstance, email, password);
   } catch (error: any)
    {
     return { error: error.message };
@@ -66,7 +71,7 @@ export async function signInWithEmail(formData: FormData) {
 
 export async function signOut() {
   try {
-    await firebaseSignOut(auth);
+    await firebaseSignOut(authInstance);
   } catch (error: any) {
     return { error: error.message };
   }

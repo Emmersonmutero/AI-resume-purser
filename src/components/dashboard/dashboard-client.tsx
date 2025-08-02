@@ -128,7 +128,11 @@ export default function DashboardClient() {
              </Card>
           )}
 
-          {processedData && <JobMatches matches={processedData.matches} />}
+          {processedData && <JobMatches 
+            matches={processedData.matches} 
+            jobs={processedData.jobs}
+            resumeData={processedData.resumeData}
+            />}
         </div>
       </div>
        {processedData && (
