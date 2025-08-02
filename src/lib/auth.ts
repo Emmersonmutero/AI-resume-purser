@@ -9,7 +9,7 @@ import {
 import { app } from './firebase';
 import { z } from 'zod';
 import { redirect } from 'next/navigation';
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
 
 const auth = getAuth(app);
@@ -71,4 +71,19 @@ export async function signOut() {
     return { error: error.message };
   }
   redirect('/');
+}
+
+
+export async function getUserRole(userId: string): Promise<string | null> {
+    try {
+        const userDocRef = doc(db, 'users', userId);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+            return userDoc.data().role || 'job-seeker';
+        }
+        return 'job-seeker'; // Default to job-seeker if doc doesn't exist
+    } catch (error) {
+        console.error("Error fetching user role:", error);
+        return null;
+    }
 }

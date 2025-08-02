@@ -16,9 +16,12 @@ import Link from 'next/link';
 import { signOut } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '../ui/card';
+import { usePathname } from 'next/navigation';
 
 export function DashboardSidebar() {
     const { toast } = useToast();
+    const pathname = usePathname();
+
     const handleLogout = async () => {
         const { error } = await signOut();
         if (error) {
@@ -43,20 +46,19 @@ export function DashboardSidebar() {
           <SidebarGroupLabel>General</SidebarGroupLabel>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton href="/dashboard" isActive>
+              <SidebarMenuButton href="/dashboard/job-seeker" isActive={pathname.startsWith('/dashboard/job-seeker')}>
                 <LayoutGrid />
                 Overview
               </SidebarMenuButton>
             </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton href="#">
+             <SidebarMenuItem>
+              <SidebarMenuButton href="/dashboard/recruiter" isActive={pathname.startsWith('/dashboard/recruiter')}>
                 <Briefcase />
-                Job Matches
-                <ChevronRight className="ml-auto" />
+                Recruiter
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton href="#">
+              <SidebarMenuButton href="#" isDisabled>
                 <File />
                 My Resumes
               </SidebarMenuButton>
@@ -67,13 +69,13 @@ export function DashboardSidebar() {
           <SidebarGroupLabel>Analysis</SidebarGroupLabel>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton href="#">
+              <SidebarMenuButton href="#" isDisabled>
                 <BarChart />
                 Reports
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton href="#">
+              <SidebarMenuButton href="#" isDisabled>
                 <Bot />
                 AI Insights
                  <ChevronRight className="ml-auto" />
@@ -85,13 +87,13 @@ export function DashboardSidebar() {
           <SidebarGroupLabel>Settings</SidebarGroupLabel>
           <SidebarMenu>
              <SidebarMenuItem>
-              <SidebarMenuButton href="#">
+              <SidebarMenuButton href="#" isDisabled>
                 <LifeBuoy />
                 Help & Supports
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton href="#">
+              <SidebarMenuButton href="#" isDisabled>
                 <Settings />
                 Settings
               </SidebarMenuButton>
