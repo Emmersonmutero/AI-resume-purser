@@ -11,7 +11,7 @@ import {
 } from 'firebase/auth';
 import { app } from './firebase';
 import { z } from 'zod';
-import {-redirect} from 'next/navigation';
+import { redirect } from 'next/navigation';
 
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
@@ -30,10 +30,10 @@ export async function signUpWithEmail(formData: FormData) {
   const { email, password } = result.data;
   try {
     await createUserWithEmailAndPassword(auth, email, password);
-    -redirect('/dashboard');
   } catch (error: any) {
     return { error: error.message };
   }
+  redirect('/dashboard');
 }
 
 export async function signInWithEmail(formData: FormData) {
@@ -44,35 +44,35 @@ export async function signInWithEmail(formData: FormData) {
   const { email, password } = result.data;
   try {
     await signInWithEmailAndPassword(auth, email, password);
-    -redirect('/dashboard');
   } catch (error: any) {
     return { error: error.message };
   }
+  redirect('/dashboard');
 }
 
 export async function signInWithGoogle() {
   try {
     await signInWithPopup(auth, googleProvider);
-    -redirect('/dashboard');
   } catch (error: any) {
     return { error: error.message };
   }
+  redirect('/dashboard');
 }
 
 export async function signInWithFacebook() {
   try {
     await signInWithPopup(auth, facebookProvider);
-    -redirect('/dashboard');
   } catch (error: any) {
     return { error: error.message };
   }
+  redirect('/dashboard');
 }
 
 export async function signOut() {
   try {
     await firebaseSignOut(auth);
-    -redirect('/');
   } catch (error: any) {
     return { error: error.message };
   }
+  redirect('/');
 }

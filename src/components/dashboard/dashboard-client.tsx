@@ -8,7 +8,10 @@ import { JobMatches } from "./job-matches";
 import { handleResumeUpload } from "@/lib/actions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Terminal, Bot } from "lucide-react";
+import { Terminal, Bot, FileText, Briefcase, Users } from "lucide-react";
+import { RiskScoreChart } from "./risk-score-chart";
+import { ThreatSummaryChart } from "./threat-summary-chart";
+import { ThreatsByVirusChart } from "./threats-by-virus-chart";
 
 export default function DashboardClient() {
   const [processedData, setProcessedData] = useState<ProcessedResumeData | null>(null);
@@ -33,35 +36,81 @@ export default function DashboardClient() {
     }
   };
 
+  const getMatchStats = () => {
+    if (!processedData) return { totalJobs: 0, goodMatches: 0, greatMatches: 0 };
+    return {
+      totalJobs: processedData.matches.length,
+      goodMatches: processedData.matches.filter(m => m.matchScore >= 0.7 && m.matchScore < 0.85).length,
+      greatMatches: processedData.matches.filter(m => m.matchScore >= 0.85).length,
+    }
+  }
+
+  const stats = getMatchStats();
+
   return (
-    <div className="container mx-auto">
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-[1fr_2fr]">
-        <div className="space-y-8">
+    <div className="space-y-4 md:space-y-8">
+       {error && (
+        <Alert variant="destructive">
+          <Terminal className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <ResumeUpload onUpload={onResumeUpload} isLoading={isLoading} />
-          {processedData && <JobMatches matches={processedData.matches} />}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-4">
+                <div className="bg-primary/10 p-3 rounded-full">
+                  <Briefcase className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{ isLoading ? '...' : stats.totalJobs}</p>
+                  <p className="text-sm text-muted-foreground">Total Jobs Matched</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-4">
+                <div className="bg-primary/10 p-3 rounded-full">
+                  <Users className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{ isLoading ? '...' : stats.goodMatches}</p>
+                  <p className="text-sm text-muted-foreground">Good Matches</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-4">
+                <div className="bg-primary/10 p-3 rounded-full">
+                  <FileText className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{ isLoading ? '...' : stats.greatMatches}</p>
+                  <p className="text-sm text-muted-foreground">Great Matches</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+      </div>
+
+      <div className="grid gap-4 md:gap-8 lg:grid-cols-5">
+        <div className="lg:col-span-3 grid gap-4 md:grid-cols-2">
+            <div className="md:col-span-2">
+              <ThreatSummaryChart matches={processedData?.matches} isLoading={isLoading} />
+            </div>
+            <RiskScoreChart matches={processedData?.matches} isLoading={isLoading} />
+            <ThreatsByVirusChart matches={processedData?.matches} isLoading={isLoading} />
         </div>
-        
-        <div className="space-y-8">
-          {error && (
-            <Alert variant="destructive">
-              <Terminal className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          {!processedData && !isLoading && !error && (
-             <Card className="h-full flex items-center justify-center min-h-[500px]">
-                <CardContent className="text-center text-muted-foreground p-8">
-                    <Bot size={48} className="mx-auto mb-4 text-primary/50" />
-                    <p className="font-headline text-lg">Your resume analysis will appear here.</p>
-                    <p>Upload your PDF resume to get started.</p>
-                </CardContent>
-             </Card>
-          )}
-
-          {isLoading && (
-             <Card className="h-full flex items-center justify-center min-h-[500px]">
+        <div className="lg:col-span-2">
+           {isLoading && (
+             <Card className="h-full min-h-[500px] flex items-center justify-center">
                 <CardContent className="text-center text-muted-foreground p-8">
                     <div className="flex items-center space-x-2">
                         <svg className="animate-spin h-5 w-5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -75,9 +124,24 @@ export default function DashboardClient() {
              </Card>
           )}
 
-          {processedData && <ResumeDisplay resumeData={processedData.resumeData} summary={processedData.summary} />}
+          {!processedData && !isLoading && !error && (
+             <Card className="h-full flex items-center justify-center min-h-[500px]">
+                <CardContent className="text-center text-muted-foreground p-8">
+                    <Bot size={48} className="mx-auto mb-4 text-primary/50" />
+                    <p className="font-headline text-lg">Your resume analysis will appear here.</p>
+                    <p>Upload your PDF resume to get started.</p>
+                </CardContent>
+             </Card>
+          )}
+
+          {processedData && <JobMatches matches={processedData.matches} />}
         </div>
       </div>
+       {processedData && (
+          <div className="grid gap-4 md:gap-8">
+              <ResumeDisplay resumeData={processedData.resumeData} summary={processedData.summary} />
+          </div>
+        )}
     </div>
   );
 }

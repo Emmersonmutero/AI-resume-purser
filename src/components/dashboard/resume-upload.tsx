@@ -15,6 +15,7 @@ type ResumeUploadProps = {
 
 export function ResumeUpload({ onUpload, isLoading }: ResumeUploadProps) {
   const formRef = useRef<HTMLFormElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -31,22 +32,46 @@ export function ResumeUpload({ onUpload, isLoading }: ResumeUploadProps) {
     }
     onUpload(formData);
   };
+  
+  const handleCardClick = () => {
+    fileInputRef.current?.click();
+  }
+
+  const handleFileChange = () => {
+    if (formRef.current) {
+        const formData = new FormData(formRef.current);
+        const file = formData.get('resume') as File;
+        if (file && file.size > 0) {
+            onUpload(formData);
+        }
+    }
+  }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="font-headline">Upload Your Resume</CardTitle>
-        <CardDescription>Upload your resume (PDF, max 5MB) to get started.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid w-full max-w-sm items-center gap-1.5">
-            <Label htmlFor="resume">Resume PDF</Label>
-            <Input id="resume" name="resume" type="file" accept=".pdf" required />
-          </div>
-          <Button type="submit" disabled={isLoading} className="w-full">
-            {isLoading ? "Analyzing..." : <><UploadCloud className="mr-2 h-4 w-4" /> Analyze Resume</>}
-          </Button>
+    <Card 
+        className="relative hover:border-primary/50 cursor-pointer transition-colors"
+        onClick={handleCardClick}
+    >
+      <CardContent className="p-4">
+        <div className="flex items-center gap-4">
+            <div className="bg-primary/10 p-3 rounded-full">
+                <UploadCloud className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+                 <p className="text-lg font-semibold">{isLoading ? 'Analyzing...' : 'Upload Resume'}</p>
+                 <p className="text-sm text-muted-foreground">{isLoading ? 'Please wait' : 'Click to select PDF'}</p>
+            </div>
+        </div>
+        <form ref={formRef} onSubmit={handleSubmit} className="hidden">
+          <Input 
+            ref={fileInputRef} 
+            id="resume" 
+            name="resume" 
+            type="file" 
+            accept=".pdf" 
+            required 
+            onChange={handleFileChange}
+            />
         </form>
       </CardContent>
     </Card>

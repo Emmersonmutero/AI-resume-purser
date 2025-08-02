@@ -1,9 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import type { ExtractResumeDataOutput } from "@/ai/flows/extract-resume-data";
 import type { GenerateResumeSummaryOutput } from "@/ai/flows/generate-resume-summary";
-import { Briefcase, GraduationCap, Lightbulb, User } from "lucide-react";
+import { Briefcase, GraduationCap, Lightbulb, User, MoreVertical } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "../ui/button";
 
 type ResumeDisplayProps = {
   resumeData: ExtractResumeDataOutput;
@@ -14,17 +15,22 @@ export function ResumeDisplay({ resumeData, summary }: ResumeDisplayProps) {
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle className="font-headline text-2xl flex items-center gap-2"><User />Parsed Resume</CardTitle>
+         <div className="flex justify-between items-center">
+            <CardTitle className="font-headline flex items-center gap-2 text-lg"><User />Parsed Resume</CardTitle>
+             <Button variant="ghost" size="icon">
+                <MoreVertical className="h-4 w-4"/>
+            </Button>
+        </div>
         <CardDescription>This is the information extracted from your resume.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">
-            <h3 className="font-semibold font-headline flex items-center gap-2"><Lightbulb /> AI Summary</h3>
+            <h3 className="font-semibold font-headline flex items-center gap-2 text-base"><Lightbulb /> AI Summary</h3>
             <p className="text-sm text-muted-foreground">{summary.summary}</p>
         </div>
 
         <div className="space-y-2">
-          <h3 className="font-semibold font-headline">Skills</h3>
+          <h3 className="font-semibold font-headline text-base">Skills</h3>
           <div className="flex flex-wrap gap-2">
             {resumeData.skills.map((skill) => (
               <Badge key={skill} variant="secondary">{skill}</Badge>
@@ -33,38 +39,47 @@ export function ResumeDisplay({ resumeData, summary }: ResumeDisplayProps) {
         </div>
 
         <div>
-            <h3 className="font-semibold font-headline flex items-center gap-2 mb-2"><Briefcase /> Work Experience</h3>
-            <Accordion type="single" collapsible defaultValue="experience-0" className="w-full">
+            <h3 className="font-semibold font-headline flex items-center gap-2 mb-2 text-base"><Briefcase /> Work Experience</h3>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Company</TableHead>
+                  <TableHead>Dates</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {resumeData.experience.map((exp, index) => (
-                    <AccordionItem value={`experience-${index}`} key={index}>
-                        <AccordionTrigger>
-                            <div className="text-left">
-                                <p className="font-medium">{exp.title}</p>
-                                <p className="text-sm text-muted-foreground">{exp.company} &middot; {exp.dates}</p>
-                            </div>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">{exp.description}</p>
-                        </AccordionContent>
-                    </AccordionItem>
+                  <TableRow key={index}>
+                    <TableCell className="font-medium">{exp.title}</TableCell>
+                    <TableCell>{exp.company}</TableCell>
+                    <TableCell>{exp.dates}</TableCell>
+                  </TableRow>
                 ))}
-            </Accordion>
+              </TableBody>
+            </Table>
         </div>
 
         <div>
-            <h3 className="font-semibold font-headline flex items-center gap-2 mb-2"><GraduationCap /> Education</h3>
-            <Accordion type="single" collapsible className="w-full">
+            <h3 className="font-semibold font-headline flex items-center gap-2 mb-2 text-base"><GraduationCap /> Education</h3>
+             <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Degree</TableHead>
+                  <TableHead>Institution</TableHead>
+                  <TableHead>Dates</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {resumeData.education.map((edu, index) => (
-                    <AccordionItem value={`education-${index}`} key={index}>
-                        <AccordionTrigger>
-                            <div className="text-left">
-                               <p className="font-medium">{edu.degree}</p>
-                               <p className="text-sm text-muted-foreground">{edu.institution} &middot; {edu.dates}</p>
-                            </div>
-                        </AccordionTrigger>
-                    </AccordionItem>
+                  <TableRow key={index}>
+                    <TableCell className="font-medium">{edu.degree}</TableCell>
+                    <TableCell>{edu.institution}</TableCell>
+                    <TableCell>{edu.dates}</TableCell>
+                  </TableRow>
                 ))}
-            </Accordion>
+              </TableBody>
+            </Table>
         </div>
       </CardContent>
     </Card>
