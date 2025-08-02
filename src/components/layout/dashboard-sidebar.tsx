@@ -61,7 +61,7 @@ export function DashboardSidebar() {
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton href="#" isDisabled>
+              <SidebarMenuButton href="#" disabled>
                 <File />
                 My Resumes
               </SidebarMenuButton>
@@ -72,13 +72,13 @@ export function DashboardSidebar() {
           <SidebarGroupLabel>Analysis</SidebarGroupLabel>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton href="#" isDisabled>
+              <SidebarMenuButton href="#" disabled>
                 <BarChart />
                 Reports
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton href="#" isDisabled>
+              <SidebarMenuButton href="#" disabled>
                 <Bot />
                 AI Insights
                  <ChevronRight className="ml-auto" />
@@ -90,13 +90,13 @@ export function DashboardSidebar() {
           <SidebarGroupLabel>Settings</SidebarGroupLabel>
           <SidebarMenu>
              <SidebarMenuItem>
-              <SidebarMenuButton href="#" isDisabled>
+              <SidebarMenuButton href="/dashboard/help" isActive={pathname === '/dashboard/help'}>
                 <LifeBuoy />
                 Help & Supports
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton href="#" isDisabled>
+              <SidebarMenuButton href="/dashboard/settings" isActive={pathname === '/dashboard/settings'}>
                 <Settings />
                 Settings
               </SidebarMenuButton>
