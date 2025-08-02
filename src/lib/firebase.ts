@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, initializeAuth, browserLocalPersistence, browserSessionPersistence } from "firebase/auth";
 import { getFirestore } from 'firebase/firestore';
 
 // Your web app's Firebase configuration
@@ -24,7 +24,10 @@ function initializeFirebaseApp(): FirebaseApp {
 }
 
 const app = initializeFirebaseApp();
-const auth = getAuth(app);
+// This ensures that the user's session is persisted locally.
+const auth = initializeAuth(app, {
+    persistence: browserLocalPersistence
+});
 const db = getFirestore(app);
 
 
