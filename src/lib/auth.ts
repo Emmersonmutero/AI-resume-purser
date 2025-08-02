@@ -3,10 +3,7 @@
 import {
   createUserWithEmailAndPassword,
   getAuth,
-  GoogleAuthProvider,
-  FacebookAuthProvider,
   signInWithEmailAndPassword,
-  signInWithPopup,
   signOut as firebaseSignOut,
 } from 'firebase/auth';
 import { app } from './firebase';
@@ -14,8 +11,6 @@ import { z } from 'zod';
 import { redirect } from 'next/navigation';
 
 const auth = getAuth(app);
-const googleProvider = new GoogleAuthProvider();
-const facebookProvider = new FacebookAuthProvider();
 
 const emailPasswordSchema = z.object({
   email: z.string().email(),
@@ -44,24 +39,6 @@ export async function signInWithEmail(formData: FormData) {
   const { email, password } = result.data;
   try {
     await signInWithEmailAndPassword(auth, email, password);
-  } catch (error: any) {
-    return { error: error.message };
-  }
-  redirect('/dashboard');
-}
-
-export async function signInWithGoogle() {
-  try {
-    await signInWithPopup(auth, googleProvider);
-  } catch (error: any) {
-    return { error: error.message };
-  }
-  redirect('/dashboard');
-}
-
-export async function signInWithFacebook() {
-  try {
-    await signInWithPopup(auth, facebookProvider);
   } catch (error: any) {
     return { error: error.message };
   }

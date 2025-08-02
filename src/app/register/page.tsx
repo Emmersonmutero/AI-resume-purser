@@ -7,9 +7,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { FileText } from 'lucide-react';
-import { signUpWithEmail, signInWithGoogle, signInWithFacebook } from '@/lib/auth';
+import { signUpWithEmail } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
+import { app } from '@/lib/firebase';
+
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
+const facebookProvider = new FacebookAuthProvider();
 
 const GoogleIcon = () => (
     <svg role="img" viewBox="0 0 24 24" className="w-4 h-4 mr-2">
@@ -48,31 +54,31 @@ export default function RegisterPage() {
 
         if (result?.error) {
             toast({ title: 'Registration Failed', description: result.error, variant: 'destructive' });
+            setIsLoading(false);
         } else {
             router.push('/dashboard');
         }
-        setIsLoading(false);
     };
 
     const handleGoogleLogin = async () => {
         setIsLoading(true);
-        const result = await signInWithGoogle();
-        if (result?.error) {
-            toast({ title: 'Login Failed', description: result.error, variant: 'destructive' });
-            setIsLoading(false);
-        } else {
+        try {
+            await signInWithPopup(auth, googleProvider);
             router.push('/dashboard');
+        } catch (error: any) {
+            toast({ title: 'Login Failed', description: error.message, variant: 'destructive' });
+            setIsLoading(false);
         }
     };
     
     const handleFacebookLogin = async () => {
         setIsLoading(true);
-        const result = await signInWithFacebook();
-        if (result?.error) {
-            toast({ title: 'Login Failed', description: result.error, variant: 'destructive' });
-            setIsLoading(false);
-        } else {
+        try {
+            await signInWithPopup(auth, facebookProvider);
             router.push('/dashboard');
+        } catch (error: any) {
+            toast({ title: 'Login Failed', description: error.message, variant: 'destructive' });
+            setIsLoading(false);
         }
       };
 
