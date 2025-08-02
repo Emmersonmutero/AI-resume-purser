@@ -265,7 +265,8 @@ export async function signUpWithEmail(formData: FormData) {
         role: role,
         createdAt: new Date(),
     });
-    return { userId: user.uid, role: role };
+    const userRole = await getUserRole(user.uid);
+    return { success: true, userId: user.uid, role: userRole };
   } catch (error: any) {
     return { error: error.message };
   }
@@ -280,7 +281,7 @@ export async function signInWithEmail(formData: FormData) {
   try {
     const userCredential = await signInWithEmailAndPassword(authInstance, email, password);
     const role = await getUserRole(userCredential.user.uid);
-    return { userId: userCredential.user.uid, role: role };
+    return { success: true, userId: userCredential.user.uid, role: role };
   } catch (error: any)
    {
     return { error: error.message };
