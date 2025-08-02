@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import type { ExtractResumeDataOutput } from "@/ai/flows/extract-resume-data";
 import type { GenerateResumeSummaryOutput } from "@/ai/flows/generate-resume-summary";
-import { Briefcase, GraduationCap, Lightbulb, User, MoreVertical, Star } from "lucide-react";
+import { Briefcase, GraduationCap, Lightbulb, User, MoreVertical, Star, Link as LinkIcon, Mail, Phone } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
@@ -25,6 +25,26 @@ export function ResumeDisplay({ resumeData, summary }: ResumeDisplayProps) {
         <CardDescription>This is the information extracted and summarized from your resume by AI.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              <div>
+                <h2 className="text-xl font-bold font-headline">{resumeData.name}</h2>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                  <span className="flex items-center gap-1.5"><Mail className="h-4 w-4" /> {resumeData.email}</span>
+                  <span className="flex items-center gap-1.5"><Phone className="h-4 w-4" /> {resumeData.phone}</span>
+                </div>
+              </div>
+            </div>
+             <div className="flex flex-wrap gap-2">
+                {resumeData.links.map((link) => (
+                    <Button key={link} variant="outline" size="sm" asChild>
+                        <a href={link} target="_blank" rel="noopener noreferrer"><LinkIcon className="mr-2 h-3 w-3" />{link.replace(/^(https?:\/\/)?(www\.)?/, '').replace(/\/$/, '')}</a>
+                    </Button>
+                ))}
+            </div>
+        </div>
+
+
         <div className="space-y-2">
             <h3 className="font-semibold font-headline flex items-center gap-2 text-base"><Lightbulb /> AI Summary</h3>
             <p className="text-sm text-muted-foreground">{summary.summary}</p>

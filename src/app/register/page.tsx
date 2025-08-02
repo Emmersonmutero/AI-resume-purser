@@ -6,12 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { FileText } from 'lucide-react';
+import { FileText, Briefcase, User } from 'lucide-react';
 import { signUpWithEmail } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
 import { app } from '@/lib/firebase';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { cn } from '@/lib/utils';
 
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
@@ -37,12 +39,14 @@ export default function RegisterPage() {
     const { toast } = useToast();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const [role, setRole] = useState<'job-seeker' | 'recruiter'>('job-seeker');
 
     const handleEmailRegister = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         const password = formData.get('password');
         const confirmPassword = formData.get('confirm-password');
+        formData.append('role', role);
 
         if (password !== confirmPassword) {
             toast({ title: 'Registration Failed', description: "Passwords don't match.", variant: 'destructive' });
@@ -60,43 +64,29 @@ export default function RegisterPage() {
         }
     };
 
-    const handleGoogleLogin = async () => {
+    const handleSocialLogin = async (provider: 'google' | 'facebook') => {
         setIsLoading(true);
+        const authProvider = provider === 'google' ? googleProvider : facebookProvider;
         try {
-            await signInWithPopup(auth, googleProvider);
+            await signInWithPopup(auth, authProvider);
+            // Here you would typically also save the user's role to your database
+            // For now, we redirect directly.
             router.push('/dashboard');
         } catch (error: any) {
+            let description = error.message;
             if (error.code === 'auth/operation-not-allowed') {
-                toast({ title: 'Login Failed', description: 'Google Sign-in is not enabled for this project. Please enable it in the Firebase console.', variant: 'destructive' });
+                 description = `${provider.charAt(0).toUpperCase() + provider.slice(1)} Sign-in is not enabled. Please enable it in the Firebase console.`;
             } else if (error.code === 'auth/unauthorized-domain') {
-                 toast({ title: 'Login Failed', description: 'This domain is not authorized for Google Sign-in. Please add it to the list of authorized domains in the Firebase console.', variant: 'destructive' });
-            } else {
-                toast({ title: 'Login Failed', description: error.message, variant: 'destructive' });
+                 description = `This domain is not authorized for ${provider.charAt(0).toUpperCase() + provider.slice(1)} Sign-in. Please add it to the list of authorized domains in the Firebase console.`;
             }
+            toast({ title: 'Login Failed', description, variant: 'destructive' });
             setIsLoading(false);
         }
     };
-    
-    const handleFacebookLogin = async () => {
-        setIsLoading(true);
-        try {
-            await signInWithPopup(auth, facebookProvider);
-            router.push('/dashboard');
-        } catch (error: any) {
-            if (error.code === 'auth/operation-not-allowed') {
-                toast({ title: 'Login Failed', description: 'Facebook Sign-in is not enabled for this project. Please enable it in the Firebase console.', variant: 'destructive' });
-            } else if (error.code === 'auth/unauthorized-domain') {
-                toast({ title: 'Login Failed', description: 'This domain is not authorized for Facebook Sign-in. Please add it to the list of authorized domains in the Firebase console and configure the OAuth redirect URI in your Facebook App settings.', variant: 'destructive' });
-            } else {
-                toast({ title: 'Login Failed', description: error.message, variant: 'destructive' });
-            }
-            setIsLoading(false);
-        }
-      };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-secondary/50 p-4">
-      <Card className="w-full max-w-sm">
+      <Card className="w-full max-w-md">
         <CardHeader className="text-center">
             <div className="flex justify-center items-center mb-4">
                 <Link href="/" className="flex items-center space-x-2 text-primary">
@@ -105,10 +95,41 @@ export default function RegisterPage() {
                 </Link>
             </div>
           <CardTitle className="text-2xl font-headline">Create an Account</CardTitle>
-          <CardDescription>Enter your information to create an account.</CardDescription>
+          <CardDescription>Select your role and enter your details to get started.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleEmailRegister} className="grid gap-4">
+            <div className="grid gap-2">
+                <Label>I am a...</Label>
+                <RadioGroup defaultValue="job-seeker" onValueChange={(value) => setRole(value as 'job-seeker' | 'recruiter')} className="grid grid-cols-2 gap-4">
+                     <div>
+                        <RadioGroupItem value="job-seeker" id="job-seeker" className="peer sr-only" />
+                        <Label
+                          htmlFor="job-seeker"
+                          className={cn(
+                            "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground",
+                            role === 'job-seeker' && "border-primary"
+                          )}
+                        >
+                          <User className="mb-3 h-6 w-6" />
+                          Job Seeker
+                        </Label>
+                      </div>
+                      <div>
+                        <RadioGroupItem value="recruiter" id="recruiter" className="peer sr-only" />
+                        <Label
+                          htmlFor="recruiter"
+                           className={cn(
+                            "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground",
+                             role === 'recruiter' && "border-primary"
+                          )}
+                        >
+                          <Briefcase className="mb-3 h-6 w-6" />
+                          Recruiter
+                        </Label>
+                      </div>
+                </RadioGroup>
+            </div>
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input id="email" name="email" type="email" placeholder="m@example.com" required disabled={isLoading} />
@@ -134,11 +155,11 @@ export default function RegisterPage() {
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
-                 <Button variant="outline" className="w-full" onClick={handleGoogleLogin} disabled={isLoading}>
+                 <Button variant="outline" className="w-full" onClick={() => handleSocialLogin('google')} disabled={isLoading}>
                     <GoogleIcon />
                     Google
                 </Button>
-                <Button variant="outline" className="w-full" onClick={handleFacebookLogin} disabled={isLoading}>
+                <Button variant="outline" className="w-full" onClick={() => handleSocialLogin('facebook')} disabled={isLoading}>
                     <FacebookIcon />
                     Facebook
                 </Button>

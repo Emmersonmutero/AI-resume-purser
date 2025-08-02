@@ -21,7 +21,11 @@ const ExtractResumeDataInputSchema = z.object({
 export type ExtractResumeDataInput = z.infer<typeof ExtractResumeDataInputSchema>;
 
 const ExtractResumeDataOutputSchema = z.object({
-  skills: z.array(z.string()).describe('A list of skills extracted from the resume.'),
+  name: z.string().describe('The full name of the candidate.'),
+  email: z.string().describe('The email address of the candidate.'),
+  phone: z.string().describe('The phone number of the candidate.'),
+  links: z.array(z.string()).describe('A list of URLs to portfolios, LinkedIn, GitHub, etc.'),
+  skills: z.array(z.string()).describe('A list of skills extracted from the resume. Normalize skills where possible (e.g., JS to JavaScript).'),
   experience: z
     .array(
       z.object({
@@ -52,8 +56,9 @@ const prompt = ai.definePrompt({
   name: 'extractResumeDataPrompt',
   input: {schema: ExtractResumeDataInputSchema},
   output: {schema: ExtractResumeDataOutputSchema},
-  prompt: `You are an expert resume parser. You will extract key information from the resume provided, including skills, work experience, and education.
+  prompt: `You are an expert resume parser. You will extract key information from the resume provided, including the candidate's name, email, phone number, links, skills, work experience, and education.
 
+  Please normalize skills where appropriate (e.g., "JS" to "JavaScript").
   Please return the data in the JSON format specified by the output schema.
 
   Here is the resume data:

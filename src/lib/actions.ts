@@ -13,6 +13,7 @@ import {
   type MatchResumeToJobsOutput,
 } from '@/ai/flows/match-resume-to-jobs';
 import {z} from 'zod';
+import { fileTypeFromBuffer } from 'file-type';
 
 export type ProcessedResumeData = {
   resumeData: ExtractResumeDataOutput;
@@ -32,6 +33,13 @@ const MOCK_JOB_POSTINGS = [
   'Junior Software Engineer at BuildIt. Entry-level position for a motivated developer to work on our core product. Knowledge of Java or C# is a plus.',
 ];
 
+async function fileToDataUri(file: File): Promise<string> {
+    const buffer = await file.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString('base64');
+    return `data:${file.type};base64,${base64}`;
+}
+
+
 export async function handleResumeUpload(
   formData: FormData
 ): Promise<{data: ProcessedResumeData | null; error: string | null}> {
@@ -42,9 +50,9 @@ export async function handleResumeUpload(
     size: z
       .number()
       .max(5 * 1024 * 1024, {message: 'File size must be less than 5MB.'}),
-    type: z.literal('application/pdf', {
-      errorMap: () => ({message: 'Only PDF files are allowed.'}),
-    }),
+    type: z.string().refine(type => type === 'application/pdf' || type === 'text/plain', {
+        message: "Only PDF and TXT files are allowed."
+    })
   });
 
   const validation = fileSchema.safeParse(file);
@@ -57,15 +65,17 @@ export async function handleResumeUpload(
   }
 
   try {
-    const buffer = await file.arrayBuffer();
-    const base64 = Buffer.from(buffer).toString('base64');
-    const dataUri = `data:application/pdf;base64,${base64}`;
+    const dataUri = await fileToDataUri(file);
 
     // 1. Extract structured data from resume
     const resumeData = await extractResumeData({resumeDataUri: dataUri});
 
     // 2. Create a text representation for other AI flows
     const resumeText = `
+      Name: ${resumeData.name}
+      Email: ${resumeData.email}
+      Phone: ${resumeData.phone}
+      Links: ${resumeData.links.join(', ')}
       Skills: ${resumeData.skills.join(', ')}\n\n
       Experience:\n${resumeData.experience
         .map(

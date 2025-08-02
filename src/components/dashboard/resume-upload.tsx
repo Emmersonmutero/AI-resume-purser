@@ -25,7 +25,7 @@ export function ResumeUpload({ onUpload, isLoading }: ResumeUploadProps) {
     if (!file || file.size === 0) {
       toast({
         title: "No file selected",
-        description: "Please select a PDF file to upload.",
+        description: "Please select a PDF or TXT file to upload.",
         variant: "destructive",
       });
       return;
@@ -61,7 +61,7 @@ export function ResumeUpload({ onUpload, isLoading }: ResumeUploadProps) {
             </div>
             <div>
                  <p className="text-lg font-semibold">{isLoading ? 'Analyzing...' : 'Upload Resume'}</p>
-                 <p className="text-sm text-muted-foreground">{isLoading ? 'Please wait' : 'Click to select PDF'}</p>
+                 <p className="text-sm text-muted-foreground">{isLoading ? 'Please wait' : 'Click to select PDF or TXT'}</p>
             </div>
         </CardContent>
         <form ref={formRef} onSubmit={handleSubmit} className="hidden">
@@ -70,7 +70,7 @@ export function ResumeUpload({ onUpload, isLoading }: ResumeUploadProps) {
             id="resume" 
             name="resume" 
             type="file" 
-            accept=".pdf" 
+            accept=".pdf,.txt" 
             required 
             onChange={handleFileChange}
             disabled={isLoading}

@@ -1,0 +1,16 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can only read and write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Allow read-only access to public collections, e.g., jobs
+    // match /jobs/{jobId} {
+    //   allow read: if true;
+    //   allow write: if false; // Or add specific admin/recruiter rules
+    // }
+  }
+}
