@@ -1,5 +1,3 @@
-'use server';
-
 import {
   createUserWithEmailAndPassword,
   getAuth,
@@ -32,6 +30,7 @@ const signInSchema = z.object({
 });
 
 export async function signUpWithEmail(formData: FormData) {
+  'use server';
   const result = signUpSchema.safeParse(Object.fromEntries(formData));
   if (!result.success) {
     return { error: 'Invalid email, password, or role format.' };
@@ -55,6 +54,7 @@ export async function signUpWithEmail(formData: FormData) {
 }
 
 export async function signInWithEmail(formData: FormData) {
+  'use server';
   const result = signInSchema.safeParse(Object.fromEntries(formData));
   if (!result.success) {
     return { error: 'Invalid email or password format.' };
@@ -70,6 +70,7 @@ export async function signInWithEmail(formData: FormData) {
 }
 
 export async function signOut() {
+  'use server';
   try {
     await firebaseSignOut(authInstance);
   } catch (error: any) {
