@@ -13,7 +13,7 @@ import {
   type MatchResumeToJobsOutput,
 } from '@/ai/flows/match-resume-to-jobs';
 import {z} from 'zod';
-import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, Timestamp, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, Timestamp, deleteDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser, type User as FirebaseUser } from 'firebase/auth';
 import { auth, db } from './firebase';
 
@@ -43,8 +43,15 @@ export type ProcessedResumeData = {
   summary: GenerateResumeSummaryOutput;
   matches: MatchResumeToJobsOutput;
   jobs: JobPosting[];
+  analyzedAt: Timestamp;
 };
 
+export type UserResume = {
+    id: string;
+    fileName: string;
+    processedData: ProcessedResumeData;
+    uploadedAt: Timestamp;
+}
 
 async function fileToDataUri(file: File): Promise<string> {
     const buffer = await file.arrayBuffer();
@@ -57,6 +64,11 @@ export async function handleResumeUpload(
   formData: FormData
 ): Promise<{data: ProcessedResumeData | null; error: string | null}> {
   const file = formData.get('resume') as File;
+  const user = auth.currentUser;
+
+  if (!user) {
+    return { data: null, error: "You must be logged in to upload a resume."};
+  }
 
   const fileSchema = z.object({
     name: z.string(),
@@ -121,8 +133,27 @@ export async function handleResumeUpload(
         jobPostings: jobPostingsText,
       }),
     ]);
+    
+    const processedData: ProcessedResumeData = {
+        resumeData,
+        summary,
+        matches,
+        jobs,
+        analyzedAt: Timestamp.now(),
+    };
 
-    return {data: {resumeData, summary, matches, jobs}, error: null};
+    // 4. Save processed data to Firestore
+    const userResumesRef = doc(db, 'userResumes', user.uid);
+    await setDoc(userResumesRef, {
+        latestResume: {
+            fileName: file.name,
+            processedData: processedData,
+            uploadedAt: Timestamp.now(),
+        }
+    }, { merge: true });
+
+
+    return {data: processedData, error: null};
   } catch (error) {
     console.error('AI processing failed:', error);
     return {
@@ -131,6 +162,28 @@ export async function handleResumeUpload(
         'Failed to process resume with AI. The document might be malformed or unreadable.',
     };
   }
+}
+
+export async function getUserResumes(): Promise<UserResume | null> {
+    const user = auth.currentUser;
+    if (!user) {
+        return null;
+    }
+    try {
+        const userResumesRef = doc(db, 'userResumes', user.uid);
+        const docSnap = await getDoc(userResumesRef);
+        if (docSnap.exists() && docSnap.data().latestResume) {
+            return {
+                id: 'latest',
+                fileName: docSnap.data().latestResume.fileName,
+                ...docSnap.data().latestResume,
+            } as UserResume;
+        }
+        return null;
+    } catch (error) {
+        console.error("Error fetching user resumes:", error);
+        return null;
+    }
 }
 
 const jobPostingSchema = z.object({
@@ -326,6 +379,10 @@ export async function updateUserProfile(displayName: string) {
     }
     try {
         await updateProfile(user, { displayName });
+         // Also update the display name in the user's Firestore document
+        const userDocRef = doc(db, 'users', user.uid);
+        await updateDoc(userDocRef, { displayName });
+
         return { success: true };
     } catch (error: any) {
         return { error: error.message };
@@ -353,7 +410,7 @@ export async function updateUserPassword(currentPassword: string, newPassword: s
         await updatePassword(user, newPassword);
         return { success: true };
     } catch (error: any) {
-        if (error.code === 'auth/wrong-password') {
+        if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
             return { error: "Incorrect current password." };
         }
         return { error: "Failed to update password. Please check your current password and try again." };
@@ -370,16 +427,19 @@ export async function deleteUserAccount(password: string) {
         await reauthenticateWithCredential(user, credential);
         // Delete user's document from 'users' collection first
         await deleteDoc(doc(db, "users", user.uid));
+        // Delete user's resume document
+        await deleteDoc(doc(db, "userResumes", user.uid));
         // Then delete the user from auth
         await deleteUser(user);
         return { success: true };
     } catch (error: any) {
-        if (error.code === 'auth/wrong-password') {
+        if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
             return { error: "Incorrect password. Account deletion failed." };
         }
         if (error.code === 'auth/requires-recent-login') {
             return { error: "This is a sensitive operation. Please log out and log back in before trying again." };
         }
-        return { error: "Failed to delete account. Please try again." };
+        console.error("Account deletion failed:", error);
+        return { error: "Failed to delete account. An unexpected error occurred." };
     }
 }

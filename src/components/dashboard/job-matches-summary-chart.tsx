@@ -35,18 +35,24 @@ type JobMatchesSummaryChartProps = {
 export function JobMatchesSummaryChart({ matches, isLoading }: JobMatchesSummaryChartProps) {
   const chartData = React.useMemo(() => {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    if (!matches) {
-        return months.map(month => ({ month, jobMatches: 0 }));
-    }
-    const data = months.map(month => ({
-        month,
-        jobMatches: Math.floor(Math.random() * (matches.length * 2)) + 1
-    }));
-    // Make current month have highest value
-    const currentMonthIndex = new Date().getMonth();
-    data[currentMonthIndex].jobMatches = Math.floor(matches.length * 2.5);
+    const data = months.map(month => ({ month, jobMatches: 0 }));
 
-    return data;
+    if (matches) {
+        // This is a simulation for demonstration. In a real app, you'd use timestamps.
+        const currentMonthIndex = new Date().getMonth();
+        // Distribute matches across previous months
+        matches.forEach((_, index) => {
+            const monthIndex = (currentMonthIndex - (index % 6) + 12) % 12;
+            data[monthIndex].jobMatches += 1;
+        });
+        // Give a boost to the current month
+        if (data[currentMonthIndex].jobMatches > 0) {
+            data[currentMonthIndex].jobMatches = Math.ceil(data[currentMonthIndex].jobMatches * 1.5);
+        } else if (matches.length > 0) {
+           data[currentMonthIndex].jobMatches = Math.ceil(matches.length / 5)
+        }
+    }
+     return data;
 }, [matches]);
 
 
@@ -59,7 +65,7 @@ export function JobMatchesSummaryChart({ matches, isLoading }: JobMatchesSummary
                 <MoreVertical className="h-4 w-4"/>
             </Button>
         </div>
-        <CardDescription>Job matches over the last 12 months</CardDescription>
+        <CardDescription>A summary of your job matches over time</CardDescription>
       </CardHeader>
       <CardContent>
           {isLoading || !matches ? (

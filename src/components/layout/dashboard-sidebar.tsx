@@ -10,7 +10,7 @@ import {
   SidebarGroup,
   SidebarGroupLabel
 } from '@/components/ui/sidebar';
-import { FileText, LayoutGrid, Briefcase, File, Settings, LifeBuoy, LogOut, Bot } from 'lucide-react';
+import { FileText, LayoutGrid, Briefcase, File, Settings, LifeBuoy, LogOut, Bot, User } from 'lucide-react';
 import { Button } from '../ui/button';
 import Link from 'next/link';
 import { signOut, getUserRole } from '@/lib/actions';
@@ -19,7 +19,7 @@ import { Card, CardContent } from '../ui/card';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { auth } from '@/lib/auth';
-import type { User } from 'firebase/auth';
+import type { User as FirebaseUser } from 'firebase/auth';
 
 export function DashboardSidebar() {
     const { toast } = useToast();
@@ -28,7 +28,7 @@ export function DashboardSidebar() {
     const [userRole, setUserRole] = useState<string | null>(null);
 
      useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(async (user: User | null) => {
+        const unsubscribe = auth.onAuthStateChanged(async (user: FirebaseUser | null) => {
             if (user) {
                 const role = await getUserRole(user.uid);
                 setUserRole(role);
@@ -51,6 +51,11 @@ export function DashboardSidebar() {
             router.push('/login');
         }
       };
+      
+    const getDashboardHref = () => {
+        if (userRole === 'recruiter') return '/dashboard/recruiter';
+        return '/dashboard/job-seeker';
+    }
 
   return (
     <Sidebar>
@@ -65,21 +70,23 @@ export function DashboardSidebar() {
           <SidebarGroupLabel>General</SidebarGroupLabel>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton href="/dashboard" isActive={pathname === '/dashboard' || pathname.startsWith('/dashboard/job-seeker') || pathname.startsWith('/dashboard/recruiter')}>
+              <SidebarMenuButton href={getDashboardHref()} isActive={pathname === getDashboardHref()}>
                 <LayoutGrid />
                 Dashboard
               </SidebarMenuButton>
             </SidebarMenuItem>
+            {userRole === 'job-seeker' && (
+              <SidebarMenuItem>
+                <SidebarMenuButton href="/dashboard/resumes" isActive={pathname.startsWith('/dashboard/resumes')}>
+                  <File />
+                  My Resumes
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
              <SidebarMenuItem>
               <SidebarMenuButton href="/dashboard/profile" isActive={pathname.startsWith('/dashboard/profile')}>
-                <Briefcase />
+                <User />
                 Profile
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton href="/dashboard/resumes" disabled>
-                <File />
-                My Resumes
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
@@ -90,7 +97,7 @@ export function DashboardSidebar() {
              <SidebarMenuItem>
               <SidebarMenuButton href="/dashboard/help" isActive={pathname === '/dashboard/help'}>
                 <LifeBuoy />
-                Help & Supports
+                Help & Support
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
