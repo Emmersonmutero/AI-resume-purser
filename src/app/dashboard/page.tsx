@@ -1,22 +1,25 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '@/lib/auth';
+// import { onAuthStateChanged } from 'firebase/auth';
+// import { auth } from '@/lib/auth';
 import { getUserRole } from '@/lib/actions';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function DashboardRootPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
+    const checkAuthAndRedirect = async () => {
+      // In a real app, you would check the auth state here.
+      // For the mock, we assume the user is always logged in.
+      const isUserLoggedIn = true; // Mocking auth state
+      const mockUserId = 'mock-user-id';
+
+      if (isUserLoggedIn) {
         try {
-          // User is authenticated, get their role and redirect.
-          const role = await getUserRole(user.uid);
+          const role = await getUserRole(mockUserId);
           if (role === 'recruiter') {
             router.replace('/dashboard/recruiter');
           } else {
@@ -24,22 +27,16 @@ export default function DashboardRootPage() {
           }
         } catch (error) {
           console.error("Failed to get user role, defaulting to job-seeker.", error);
-          // Default to job-seeker on error to prevent getting stuck.
           router.replace('/dashboard/job-seeker');
         }
       } else {
-        // onAuthStateChanged has confirmed there is no user. 
-        // It is now safe to redirect to the login page.
         router.replace('/login');
       }
-    });
-
-    // Cleanup the subscription on component unmount
-    return () => unsubscribe();
+    };
+    checkAuthAndRedirect();
   }, [router]);
   
-  // Display a loading skeleton while we wait for Firebase to initialize 
-  // and for the redirection logic to complete.
+  // Display a loading skeleton while the redirection logic completes.
   return (
     <div className="flex items-center justify-center min-h-screen bg-background p-4">
         <div className="w-full max-w-md space-y-4">
