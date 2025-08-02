@@ -282,9 +282,12 @@ export async function signInWithEmail(formData: FormData) {
     const userCredential = await signInWithEmailAndPassword(authInstance, email, password);
     const role = await getUserRole(userCredential.user.uid);
     return { success: true, userId: userCredential.user.uid, role };
-  } catch (error: any)
-   {
-    return { error: error.message };
+  } catch (error: any) {
+    // Check for specific Firebase auth errors
+    if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        return { error: 'Invalid email or password.' };
+    }
+    return { error: 'An unexpected error occurred during login.' };
   }
 }
 
