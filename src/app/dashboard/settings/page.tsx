@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { updateUserPassword, deleteUserAccount } from "@/lib/actions";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function SettingsPage() {
     const { toast } = useToast();
@@ -22,6 +23,7 @@ export default function SettingsPage() {
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [deletePassword, setDeletePassword] = useState('');
+    const [showDeletePassword, setShowDeletePassword] = useState(false);
 
     const handleChangePassword = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -54,8 +56,6 @@ export default function SettingsPage() {
             setIsDeleteLoading(false);
         } else {
             toast({ title: 'Account Deleted', description: 'Your account has been permanently deleted.' });
-            // The router.push will happen after state is updated and onAuthStateChanged detects a null user.
-            // Forcing it here can cause race conditions.
             router.push('/register');
         }
     };
@@ -103,19 +103,33 @@ export default function SettingsPage() {
                     </CardHeader>
                      <CardContent>
                         <Label htmlFor="delete-password">Confirm Password</Label>
-                        <Input 
-                            id="delete-password" 
-                            type="password" 
-                            value={deletePassword} 
-                            onChange={(e) => setDeletePassword(e.target.value)} 
-                            placeholder="Enter your password to confirm"
-                            disabled={isDeleteLoading}
-                        />
+                        <div className="relative">
+                            <Input 
+                                id="delete-password" 
+                                type={showDeletePassword ? 'text' : 'password'}
+                                value={deletePassword} 
+                                onChange={(e) => setDeletePassword(e.target.value)} 
+                                placeholder="Enter your password to confirm"
+                                disabled={isDeleteLoading}
+                                className="pr-10"
+                            />
+                            <Button 
+                                type="button" 
+                                variant="ghost" 
+                                size="icon" 
+                                className="absolute inset-y-0 right-0 h-full px-3"
+                                onClick={() => setShowDeletePassword(!showDeletePassword)}
+                                disabled={isDeleteLoading}
+                            >
+                                {showDeletePassword ? <EyeOff className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
+                                <span className="sr-only">Toggle password visibility</span>
+                            </Button>
+                        </div>
                     </CardContent>
                     <CardFooter className="flex justify-start">
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <Button variant="destructive" disabled={isDeleteLoading}>Delete My Account</Button>
+                                <Button variant="destructive" disabled={isDeleteLoading || !deletePassword}>Delete My Account</Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                                 <AlertDialogHeader>
