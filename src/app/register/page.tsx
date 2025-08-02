@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { FileText, Briefcase, User } from 'lucide-react';
-import { signUpWithEmail } from '@/lib/actions';
+import { signUpWithEmail, handleSocialSignIn } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
@@ -72,9 +72,11 @@ export default function RegisterPage() {
         setIsLoading(true);
         const authProvider = provider === 'google' ? googleProvider : facebookProvider;
         try {
-            await signInWithPopup(auth, authProvider);
-            // After social sign-in, the user might not have a role in our DB.
-            // Redirecting to the main dashboard page allows it to check the role and redirect appropriately.
+            const result = await signInWithPopup(auth, authProvider);
+            const socialResult = await handleSocialSignIn(result.user);
+            if (socialResult.error) {
+                throw new Error(socialResult.error);
+            }
             router.push('/dashboard');
         } catch (error: any) {
             let description = error.message;

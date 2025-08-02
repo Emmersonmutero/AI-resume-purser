@@ -13,8 +13,8 @@ import {
   type MatchResumeToJobsOutput,
 } from '@/ai/flows/match-resume-to-jobs';
 import {z} from 'zod';
-import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, Timestamp, deleteDoc } from 'firebase/firestore';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser } from 'firebase/auth';
+import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, Timestamp, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser, type User as FirebaseUser } from 'firebase/auth';
 import { app } from './firebase';
 import { auth as authInstance } from './auth';
 
@@ -290,6 +290,28 @@ export async function signInWithEmail(formData: FormData) {
     return { error: 'An unexpected error occurred during login.' };
   }
 }
+
+export async function handleSocialSignIn(user: FirebaseUser) {
+    try {
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (!userDoc.exists()) {
+            await setDoc(userDocRef, {
+                email: user.email,
+                displayName: user.displayName,
+                photoURL: user.photoURL,
+                role: 'job-seeker', // Default role for social sign-in
+                createdAt: serverTimestamp(),
+            });
+        }
+        return { success: true };
+    } catch (error) {
+        console.error("Error handling social sign-in:", error);
+        return { error: "Failed to set up account after social sign-in." };
+    }
+}
+
 
 export async function signOut() {
   try {

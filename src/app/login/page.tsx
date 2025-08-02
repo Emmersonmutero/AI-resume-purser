@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { FileText } from 'lucide-react';
-import { signInWithEmail } from '@/lib/actions';
+import { signInWithEmail, handleSocialSignIn } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
@@ -69,8 +69,10 @@ export default function LoginPage() {
     const authProvider = provider === 'google' ? googleProvider : facebookProvider;
     try {
       const result = await signInWithPopup(auth, authProvider);
-      // After social sign-in, we need to ensure their role is set up if it's their first time.
-      // For simplicity, we redirect to the main dashboard page which handles role checking.
+      const socialResult = await handleSocialSignIn(result.user);
+      if (socialResult.error) {
+          throw new Error(socialResult.error);
+      }
       router.push('/dashboard');
     } catch (error: any) {
       let description = error.message;
