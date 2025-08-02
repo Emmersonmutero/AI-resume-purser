@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { FileText, Briefcase, User } from 'lucide-react';
-import { signUpWithEmail } from '@/lib/auth';
+import { signUpWithEmail } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';

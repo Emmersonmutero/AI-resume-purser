@@ -13,7 +13,7 @@ import {
 import { FileText, LayoutGrid, Briefcase, File, BarChart, Settings, LifeBuoy, LogOut, ChevronRight, Bot } from 'lucide-react';
 import { Button } from '../ui/button';
 import Link from 'next/link';
-import { signOut } from '@/lib/auth';
+import { signOut } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '../ui/card';
 import { usePathname } from 'next/navigation';

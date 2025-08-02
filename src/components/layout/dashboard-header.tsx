@@ -10,12 +10,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
-import { signOut } from '@/lib/auth';
+import { signOut } from '@/lib/actions';
 import { FileText, LogOut, User, Search, Settings } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
-import { auth } from '@/lib/firebase';
+import { auth } from '@/lib/auth';
 import { useEffect, useState } from 'react';
 import type { User as FirebaseUser } from 'firebase/auth';
 import { SidebarTrigger } from '@/components/ui/sidebar';

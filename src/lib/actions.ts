@@ -14,9 +14,11 @@ import {
 } from '@/ai/flows/match-resume-to-jobs';
 import {z} from 'zod';
 import { fileTypeFromBuffer } from 'file-type';
-import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc } from 'firebase/firestore';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut } from 'firebase/auth';
 import { app } from './firebase';
-import { auth } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import { auth as authInstance } from './auth';
 
 const db = getFirestore(app);
 
@@ -38,7 +40,7 @@ export type Application = {
     applicantEmail: string;
     matchScore: number;
     resumeData: ExtractResumeDataOutput;
-    appliedAt: Date;
+    appliedAt: any;
 };
 
 export type ProcessedResumeData = {
@@ -143,7 +145,7 @@ const jobPostingSchema = z.object({
 });
 
 export async function createJobPosting(formData: FormData) {
-    const user = auth.currentUser;
+    const user = authInstance.currentUser;
     if (!user) {
         return { success: false, error: "You must be logged in to post a job." };
     }
@@ -175,7 +177,7 @@ export async function applyForJob(
     matchScore: number,
     resumeData: ExtractResumeDataOutput
 ) {
-    const user = auth.currentUser;
+    const user = authInstance.currentUser;
     if (!user) {
         return { success: false, error: "You must be logged in to apply." };
     }
@@ -217,9 +219,83 @@ export async function getApplicantsForRecruiter(recruiterId: string): Promise<Ap
             ...doc.data()
         } as Application));
 
-        return applicants.sort((a, b) => b.appliedAt.toMillis() - a.appliedAt.toMillis());
+        // Note: `toMillis()` is not available on server-side timestamps. Use `toDate()`
+        return applicants.sort((a, b) => (b.appliedAt as any).toDate().getTime() - (a.appliedAt as any).toDate().getTime());
     } catch (error) {
         console.error("Error fetching applicants:", error);
         return [];
     }
+}
+
+export async function getUserRole(userId: string): Promise<string | null> {
+    try {
+        const userDocRef = doc(db, 'users', userId);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+            return userDoc.data().role || 'job-seeker';
+        }
+        return 'job-seeker'; // Default to job-seeker if doc doesn't exist
+    } catch (error) {
+        console.error("Error fetching user role:", error);
+        return null;
+    }
+}
+
+
+const signUpSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+  role: z.enum(['job-seeker', 'recruiter']),
+});
+
+const signInSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
+export async function signUpWithEmail(formData: FormData) {
+  const result = signUpSchema.safeParse(Object.fromEntries(formData));
+  if (!result.success) {
+    return { error: 'Invalid email, password, or role format.' };
+  }
+  const { email, password, role } = result.data;
+  try {
+    const userCredential = await createUserWithEmailAndPassword(authInstance, email, password);
+    const user = userCredential.user;
+
+    // Save user role to Firestore
+    await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        role: role,
+        createdAt: new Date(),
+    });
+
+  } catch (error: any) {
+    return { error: error.message };
+  }
+  redirect('/dashboard');
+}
+
+export async function signInWithEmail(formData: FormData) {
+  const result = signInSchema.safeParse(Object.fromEntries(formData));
+  if (!result.success) {
+    return { error: 'Invalid email or password format.' };
+  }
+  const { email, password } = result.data;
+  try {
+    await signInWithEmailAndPassword(authInstance, email, password);
+  } catch (error: any)
+   {
+    return { error: error.message };
+  }
+  redirect('/dashboard');
+}
+
+export async function signOut() {
+  try {
+    await firebaseSignOut(authInstance);
+  } catch (error: any) {
+    return { error: error.message };
+  }
+  redirect('/');
 }

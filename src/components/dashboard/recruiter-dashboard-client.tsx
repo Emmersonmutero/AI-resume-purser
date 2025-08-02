@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { createJobPosting, getApplicantsForRecruiter } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Briefcase, PlusCircle, Users } from 'lucide-react';
-import { auth } from '@/lib/firebase';
+import { auth } from '@/lib/auth';
 import type { Application } from '@/lib/actions';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Badge } from '../ui/badge';

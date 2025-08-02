@@ -4,8 +4,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
-import { getUserRole } from '@/lib/auth';
+import { auth } from '@/lib/auth';
+import { getUserRole } from '@/lib/actions';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function DashboardRootPage() {
