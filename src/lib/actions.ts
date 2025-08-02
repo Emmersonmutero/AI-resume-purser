@@ -13,11 +13,9 @@ import {
   type MatchResumeToJobsOutput,
 } from '@/ai/flows/match-resume-to-jobs';
 import {z} from 'zod';
-import { fileTypeFromBuffer } from 'file-type';
 import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, Timestamp } from 'firebase/firestore';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut } from 'firebase/auth';
 import { app } from './firebase';
-import { redirect } from 'next/navigation';
 import { auth as authInstance } from './auth';
 
 const db = getFirestore(app);
@@ -236,7 +234,8 @@ export async function getUserRole(userId: string): Promise<string | null> {
         return 'job-seeker'; // Default to job-seeker if doc doesn't exist
     } catch (error) {
         console.error("Error fetching user role:", error);
-        return null;
+        // Return a default role or null on error to prevent breaking the flow
+        return 'job-seeker';
     }
 }
 
@@ -267,7 +266,7 @@ export async function signUpWithEmail(formData: FormData) {
         role: role,
         createdAt: new Date(),
     });
-
+    return { userId: user.uid };
   } catch (error: any) {
     return { error: error.message };
   }
@@ -280,7 +279,8 @@ export async function signInWithEmail(formData: FormData) {
   }
   const { email, password } = result.data;
   try {
-    await signInWithEmailAndPassword(authInstance, email, password);
+    const userCredential = await signInWithEmailAndPassword(authInstance, email, password);
+    return { userId: userCredential.user.uid };
   } catch (error: any)
    {
     return { error: error.message };
@@ -290,8 +290,8 @@ export async function signInWithEmail(formData: FormData) {
 export async function signOut() {
   try {
     await firebaseSignOut(authInstance);
+    // Don't redirect from server action, let client handle it.
   } catch (error: any) {
     return { error: error.message };
   }
-  redirect('/');
 }

@@ -20,10 +20,12 @@ import { useEffect, useState } from 'react';
 import type { User as FirebaseUser } from 'firebase/auth';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Input } from '@/components/ui/input';
+import { useRouter } from 'next/navigation';
 
 export function DashboardHeader() {
   const { toast } = useToast();
   const [user, setUser] = useState<FirebaseUser | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -40,6 +42,8 @@ export function DashboardHeader() {
         description: error,
         variant: 'destructive',
       });
+    } else {
+      router.push('/login');
     }
   };
 

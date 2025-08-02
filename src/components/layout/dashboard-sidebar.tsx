@@ -16,11 +16,12 @@ import Link from 'next/link';
 import { signOut } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '../ui/card';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 export function DashboardSidebar() {
     const { toast } = useToast();
     const pathname = usePathname();
+    const router = useRouter();
 
     const handleLogout = async () => {
         const { error } = await signOut();
@@ -30,6 +31,8 @@ export function DashboardSidebar() {
             description: error,
             variant: 'destructive',
           });
+        } else {
+            router.push('/login');
         }
       };
 

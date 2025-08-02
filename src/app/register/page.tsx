@@ -60,7 +60,11 @@ export default function RegisterPage() {
             toast({ title: 'Registration Failed', description: result.error, variant: 'destructive' });
             setIsLoading(false);
         } else {
-            router.push('/dashboard');
+             if (role === 'recruiter') {
+                router.push('/dashboard/recruiter');
+            } else {
+                router.push('/dashboard/job-seeker');
+            }
         }
     };
 
@@ -69,8 +73,8 @@ export default function RegisterPage() {
         const authProvider = provider === 'google' ? googleProvider : facebookProvider;
         try {
             await signInWithPopup(auth, authProvider);
-            // Here you would typically also save the user's role to your database
-            // For now, we redirect directly.
+            // After social sign-in, the user might not have a role in our DB.
+            // Redirecting to the main dashboard page allows it to check the role and redirect appropriately.
             router.push('/dashboard');
         } catch (error: any) {
             let description = error.message;
@@ -107,7 +111,7 @@ export default function RegisterPage() {
                         <Label
                           htmlFor="job-seeker"
                           className={cn(
-                            "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground",
+                            "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer",
                             role === 'job-seeker' && "border-primary"
                           )}
                         >
@@ -120,7 +124,7 @@ export default function RegisterPage() {
                         <Label
                           htmlFor="recruiter"
                            className={cn(
-                            "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground",
+                            "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer",
                              role === 'recruiter' && "border-primary"
                           )}
                         >

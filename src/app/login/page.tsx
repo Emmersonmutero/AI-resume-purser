@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { FileText, Facebook } from 'lucide-react';
-import { signInWithEmail } from '@/lib/actions';
+import { FileText } from 'lucide-react';
+import { signInWithEmail, getUserRole } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
@@ -39,52 +39,57 @@ export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
+  const redirectToDashboard = async (userId: string) => {
+    try {
+        const role = await getUserRole(userId);
+        if (role === 'recruiter') {
+            router.push('/dashboard/recruiter');
+        } else {
+            router.push('/dashboard/job-seeker');
+        }
+    } catch (error) {
+        toast({ title: 'Redirection Failed', description: 'Could not determine user role. Defaulting to job seeker dashboard.', variant: 'destructive' });
+        router.push('/dashboard/job-seeker');
+    }
+  };
+
   const handleEmailLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
     const formData = new FormData(event.currentTarget);
     const result = await signInWithEmail(formData);
+    
     if (result?.error) {
       toast({ title: 'Login Failed', description: result.error, variant: 'destructive' });
       setIsLoading(false);
+    } else if (result?.userId) {
+      await redirectToDashboard(result.userId);
     } else {
-      router.push('/dashboard');
+       toast({ title: 'Login Failed', description: 'Could not get user information.', variant: 'destructive' });
+       setIsLoading(false);
     }
   };
   
-  const handleGoogleLogin = async () => {
+  const handleSocialLogin = async (provider: 'google' | 'facebook') => {
     setIsLoading(true);
+    const authProvider = provider === 'google' ? googleProvider : facebookProvider;
     try {
-      await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(auth, authProvider);
+      // After social sign-in, we need to ensure their role is set up if it's their first time.
+      // For simplicity, we redirect to the main dashboard page which handles role checking.
       router.push('/dashboard');
     } catch (error: any) {
+      let description = error.message;
       if (error.code === 'auth/operation-not-allowed') {
-        toast({ title: 'Login Failed', description: 'Google Sign-in is not enabled for this project. Please enable it in the Firebase console.', variant: 'destructive' });
+        description = `${provider.charAt(0).toUpperCase() + provider.slice(1)} Sign-in is not enabled. Please enable it in the Firebase console.`;
       } else if (error.code === 'auth/unauthorized-domain') {
-          toast({ title: 'Login Failed', description: 'This domain is not authorized for Google Sign-in. Please add it to the list of authorized domains in the Firebase console.', variant: 'destructive' });
-      } else {
-        toast({ title: 'Login Failed', description: error.message, variant: 'destructive' });
+          description = `This domain is not authorized for ${provider.charAt(0).toUpperCase() + provider.slice(1)} Sign-in. Please add it to the list of authorized domains in the Firebase console.`;
       }
+      toast({ title: 'Login Failed', description, variant: 'destructive' });
       setIsLoading(false);
     }
   };
 
-  const handleFacebookLogin = async () => {
-    setIsLoading(true);
-    try {
-      await signInWithPopup(auth, facebookProvider);
-      router.push('/dashboard');
-    } catch (error: any) {
-      if (error.code === 'auth/operation-not-allowed') {
-        toast({ title: 'Login Failed', description: 'Facebook Sign-in is not enabled for this project. Please enable it in the Firebase console.', variant: 'destructive' });
-      } else if (error.code === 'auth/unauthorized-domain') {
-          toast({ title: 'Login Failed', description: 'This domain is not authorized for Facebook Sign-in. Please add it to the list of authorized domains in the Firebase console and configure the OAuth redirect URI in your Facebook App settings.', variant: 'destructive' });
-      } else {
-        toast({ title: 'Login Failed', description: error.message, variant: 'destructive' });
-      }
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-secondary/50 p-4">
@@ -122,11 +127,11 @@ export default function LoginPage() {
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
-                <Button variant="outline" className="w-full" onClick={handleGoogleLogin} disabled={isLoading}>
+                <Button variant="outline" className="w-full" onClick={() => handleSocialLogin('google')} disabled={isLoading}>
                     <GoogleIcon />
                     Google
                 </Button>
-                <Button variant="outline" className="w-full" onClick={handleFacebookLogin} disabled={isLoading}>
+                <Button variant="outline" className="w-full" onClick={() => handleSocialLogin('facebook')} disabled={isLoading}>
                     <FacebookIcon />
                     Facebook
                 </Button>
