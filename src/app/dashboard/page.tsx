@@ -25,6 +25,8 @@ export default function DashboardRootPage() {
         } catch (error) {
           console.error("Failed to get user role, defaulting to job-seeker.", error);
           router.replace('/dashboard/job-seeker');
+        } finally {
+            setLoading(false);
         }
       } else {
         // User is not logged in, redirect to login page.
@@ -35,21 +37,24 @@ export default function DashboardRootPage() {
     // Cleanup subscription on unmount
     return () => {
         unsubscribe();
-        setLoading(false);
     }
   }, [router]);
   
-  // Display a loading skeleton while the redirection logic completes.
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-background p-4">
-        <div className="w-full max-w-md space-y-4">
-            <h1 className="text-2xl font-bold text-center">Loading your dashboard...</h1>
-            <div className="space-y-2">
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-            </div>
-        </div>
-    </div>
-  );
+  if (loading) {
+    // Display a loading skeleton while the redirection logic completes.
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background p-4">
+          <div className="w-full max-w-md space-y-4">
+              <h1 className="text-2xl font-bold text-center">Loading your dashboard...</h1>
+              <div className="space-y-2">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+              </div>
+          </div>
+      </div>
+    );
+  }
+
+  return null; // Return null once redirection has happened or is in progress
 }
