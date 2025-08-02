@@ -1,20 +1,19 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getUserRole } from '@/lib/actions';
 import { Skeleton } from '@/components/ui/skeleton';
+import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/auth';
+import type { User } from 'firebase/auth';
 
 export default function DashboardRootPage() {
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuthAndRedirect = async () => {
-      // Because we've mocked the auth layer, auth.currentUser will always be populated.
-      // This simulates a persistent login session.
-      const user = auth.currentUser;
-
+    const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
       if (user) {
         try {
           const role = await getUserRole(user.uid);
@@ -28,12 +27,16 @@ export default function DashboardRootPage() {
           router.replace('/dashboard/job-seeker');
         }
       } else {
-        // This case should not be reached with the current mock setup,
-        // but it's good practice to keep it as a fallback for real authentication.
+        // User is not logged in, redirect to login page.
         router.replace('/login');
       }
-    };
-    checkAuthAndRedirect();
+    });
+
+    // Cleanup subscription on unmount
+    return () => {
+        unsubscribe();
+        setLoading(false);
+    }
   }, [router]);
   
   // Display a loading skeleton while the redirection logic completes.

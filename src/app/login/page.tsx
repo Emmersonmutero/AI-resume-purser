@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { FileText } from 'lucide-react';
-import { signInWithEmail, getUserRole } from '@/lib/actions';
+import { signInWithEmail } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
@@ -39,16 +39,10 @@ export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const redirectToDashboard = async (userId: string) => {
-    try {
-        const role = await getUserRole(userId);
-        if (role === 'recruiter') {
-            router.push('/dashboard/recruiter');
-        } else {
-            router.push('/dashboard/job-seeker');
-        }
-    } catch (error) {
-        toast({ title: 'Redirection Failed', description: 'Could not determine user role. Defaulting to job seeker dashboard.', variant: 'destructive' });
+  const redirectToDashboard = (role: string | null) => {
+    if (role === 'recruiter') {
+        router.push('/dashboard/recruiter');
+    } else {
         router.push('/dashboard/job-seeker');
     }
   };
@@ -63,7 +57,7 @@ export default function LoginPage() {
       toast({ title: 'Login Failed', description: result.error, variant: 'destructive' });
       setIsLoading(false);
     } else if (result?.userId) {
-      await redirectToDashboard(result.userId);
+      redirectToDashboard(result.role);
     } else {
        toast({ title: 'Login Failed', description: 'Could not get user information.', variant: 'destructive' });
        setIsLoading(false);

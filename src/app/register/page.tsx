@@ -60,7 +60,7 @@ export default function RegisterPage() {
             toast({ title: 'Registration Failed', description: result.error, variant: 'destructive' });
             setIsLoading(false);
         } else {
-             if (role === 'recruiter') {
+             if (result.role === 'recruiter') {
                 router.push('/dashboard/recruiter');
             } else {
                 router.push('/dashboard/job-seeker');

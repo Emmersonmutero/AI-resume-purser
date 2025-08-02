@@ -13,7 +13,7 @@ import {
   type MatchResumeToJobsOutput,
 } from '@/ai/flows/match-resume-to-jobs';
 import {z} from 'zod';
-import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, Timestamp } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, Timestamp, deleteDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser } from 'firebase/auth';
 import { app } from './firebase';
 import { auth as authInstance } from './auth';
@@ -143,10 +143,10 @@ const jobPostingSchema = z.object({
 });
 
 export async function createJobPosting(formData: FormData) {
-    // const user = authInstance.currentUser;
-    // if (!user) {
-    //     return { success: false, error: "You must be logged in to post a job." };
-    // }
+    const user = authInstance.currentUser;
+    if (!user) {
+        return { success: false, error: "You must be logged in to post a job." };
+    }
 
     const result = jobPostingSchema.safeParse(Object.fromEntries(formData));
 
@@ -156,12 +156,11 @@ export async function createJobPosting(formData: FormData) {
     }
 
     try {
-        // await addDoc(collection(db, "jobs"), {
-        //     ...result.data,
-        //     postedBy: user.uid,
-        //     createdAt: new Date(),
-        // });
-        console.log("Mock Job Posting:", result.data);
+        await addDoc(collection(db, "jobs"), {
+            ...result.data,
+            postedBy: user.uid,
+            createdAt: new Date(),
+        });
         return { success: true };
     } catch (error) {
         console.error("Error creating job posting:", error);
@@ -176,23 +175,22 @@ export async function applyForJob(
     matchScore: number,
     resumeData: ExtractResumeDataOutput
 ) {
-    // const user = authInstance.currentUser;
-    // if (!user) {
-    //     return { success: false, error: "You must be logged in to apply." };
-    // }
+    const user = authInstance.currentUser;
+    if (!user) {
+        return { success: false, error: "You must be logged in to apply." };
+    }
 
     try {
-        // await addDoc(collection(db, 'applications'), {
-        //     jobId,
-        //     jobTitle,
-        //     applicantId: user.uid,
-        //     applicantName: resumeData.name,
-        //     applicantEmail: resumeData.email,
-        //     matchScore,
-        //     resumeData,
-        //     appliedAt: new Date(),
-        // });
-        console.log("Mock applying for job:", { jobId, jobTitle, matchScore });
+        await addDoc(collection(db, 'applications'), {
+            jobId,
+            jobTitle,
+            applicantId: user.uid,
+            applicantName: resumeData.name,
+            applicantEmail: resumeData.email,
+            matchScore,
+            resumeData,
+            appliedAt: new Date(),
+        });
          return { success: true };
     } catch (error) {
         console.error("Error applying for job:", error);
@@ -203,24 +201,23 @@ export async function applyForJob(
 
 export async function getApplicantsForRecruiter(recruiterId: string): Promise<Application[]> {
     try {
-        // const jobsQuery = query(collection(db, 'jobs'), where('postedBy', '==', recruiterId));
-        // const jobsSnapshot = await getDocs(jobsQuery);
-        // const jobIds = jobsSnapshot.docs.map(doc => doc.id);
+        const jobsQuery = query(collection(db, 'jobs'), where('postedBy', '==', recruiterId));
+        const jobsSnapshot = await getDocs(jobsQuery);
+        const jobIds = jobsSnapshot.docs.map(doc => doc.id);
 
-        // if (jobIds.length === 0) {
-        //     return [];
-        // }
+        if (jobIds.length === 0) {
+            return [];
+        }
 
-        // const applicationsQuery = query(collection(db, 'applications'), where('jobId', 'in', jobIds));
-        // const applicationsSnapshot = await getDocs(applicationsQuery);
+        const applicationsQuery = query(collection(db, 'applications'), where('jobId', 'in', jobIds));
+        const applicationsSnapshot = await getDocs(applicationsQuery);
 
-        // const applicants = applicationsSnapshot.docs.map(doc => ({
-        //     id: doc.id,
-        //     ...doc.data()
-        // } as Application));
+        const applicants = applicationsSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        } as Application));
 
-        // return applicants.sort((a, b) => b.appliedAt.toDate().getTime() - a.appliedAt.toDate().getTime());
-        return []; // Return empty array for mock
+        return applicants.sort((a, b) => b.appliedAt.toDate().getTime() - a.appliedAt.toDate().getTime());
     } catch (error) {
         console.error("Error fetching applicants:", error);
         return [];
@@ -228,18 +225,17 @@ export async function getApplicantsForRecruiter(recruiterId: string): Promise<Ap
 }
 
 export async function getUserRole(userId: string): Promise<string | null> {
-    // try {
-    //     const userDocRef = doc(db, 'users', userId);
-    //     const userDoc = await getDoc(userDocRef);
-    //     if (userDoc.exists()) {
-    //         return userDoc.data().role || 'job-seeker';
-    //     }
-    //     return 'job-seeker'; // Default to job-seeker if doc doesn't exist
-    // } catch (error) {
-    //     console.error("Error fetching user role:", error);
-    //     return 'job-seeker';
-    // }
-    return 'job-seeker'; // Mock role
+    try {
+        const userDocRef = doc(db, 'users', userId);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+            return userDoc.data().role || 'job-seeker';
+        }
+        return 'job-seeker'; // Default to job-seeker if doc doesn't exist
+    } catch (error) {
+        console.error("Error fetching user role:", error);
+        return 'job-seeker';
+    }
 }
 
 
@@ -259,21 +255,21 @@ export async function signUpWithEmail(formData: FormData) {
   if (!result.success) {
     return { error: 'Invalid email, password, or role format.' };
   }
-  const { role } = result.data;
-//   try {
-    // const userCredential = await createUserWithEmailAndPassword(authInstance, email, password);
-    // const user = userCredential.user;
+  const { email, password, role } = result.data;
+  try {
+    const userCredential = await createUserWithEmailAndPassword(authInstance, email, password);
+    const user = userCredential.user;
 
-    // await setDoc(doc(db, "users", user.uid), {
-    //     email: user.email,
-    //     role: role,
-    //     createdAt: new Date(),
-    // });
-    // const userRole = await getUserRole(user.uid);
-    return { success: true, userId: 'mock-user-id', role: role };
-//   } catch (error: any) {
-//     return { error: error.message };
-//   }
+    await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        role: role,
+        createdAt: new Date(),
+    });
+    const userRole = await getUserRole(user.uid);
+    return { success: true, userId: user.uid, role: userRole };
+  } catch (error: any) {
+    return { error: error.message };
+  }
 }
 
 export async function signInWithEmail(formData: FormData) {
@@ -281,87 +277,87 @@ export async function signInWithEmail(formData: FormData) {
   if (!result.success) {
     return { error: 'Invalid email or password format.' };
   }
-//   const { email, password } = result.data;
-//   try {
-    // const userCredential = await signInWithEmailAndPassword(authInstance, email, password);
-    const role = await getUserRole("mock-user-id"); // We can pass a mock id
-    return { success: true, userId: "mock-user-id", role: role };
-//   } catch (error: any)
-//    {
-//     return { error: error.message };
-//   }
+  const { email, password } = result.data;
+  try {
+    const userCredential = await signInWithEmailAndPassword(authInstance, email, password);
+    const role = await getUserRole(userCredential.user.uid);
+    return { success: true, userId: userCredential.user.uid, role };
+  } catch (error: any)
+   {
+    return { error: error.message };
+  }
 }
 
 export async function signOut() {
-//   try {
-    // await firebaseSignOut(authInstance);
+  try {
+    await firebaseSignOut(authInstance);
     return { success: true };
-//   } catch (error: any) {
-//     return { error: error.message };
-//   }
+  } catch (error: any) {
+    return { error: error.message };
+  }
 }
 
 export async function updateUserProfile(displayName: string) {
-    // const user = authInstance.currentUser;
-    // if (!user) {
-    //     return { error: "You must be logged in to update your profile." };
-    // }
-    // try {
-        // await updateProfile(user, { displayName });
-        console.log("Mock update user profile with name:", displayName);
+    const user = authInstance.currentUser;
+    if (!user) {
+        return { error: "You must be logged in to update your profile." };
+    }
+    try {
+        await updateProfile(user, { displayName });
         return { success: true };
-    // } catch (error: any) {
-    //     return { error: error.message };
-    // }
+    } catch (error: any) {
+        return { error: error.message };
+    }
 }
 
 const passwordSchema = z.string().min(6, "Password must be at least 6 characters long.");
 
 export async function updateUserPassword(currentPassword: string, newPassword: string) {
-    // const user = authInstance.currentUser;
-    // if (!user || !user.email) {
-    //     return { error: "You must be logged in." };
-    // }
+    const user = authInstance.currentUser;
+    if (!user || !user.email) {
+        return { error: "You must be logged in." };
+    }
 
     const validation = passwordSchema.safeParse(newPassword);
     if(!validation.success) {
         return { error: validation.error.errors.map(e => e.message).join(', ') };
     }
     
-    // try {
-    //     const credential = EmailAuthProvider.credential(user.email, currentPassword);
-    //     // Re-authenticate the user to confirm their identity
-    //     await reauthenticateWithCredential(user, credential);
-    //     // Now, update the password
-    //     await updatePassword(user, newPassword);
-        console.log("Mock update password.");
+    try {
+        const credential = EmailAuthProvider.credential(user.email, currentPassword);
+        // Re-authenticate the user to confirm their identity
+        await reauthenticateWithCredential(user, credential);
+        // Now, update the password
+        await updatePassword(user, newPassword);
         return { success: true };
-    // } catch (error: any) {
-    //     if (error.code === 'auth/wrong-password') {
-    //         return { error: "Incorrect current password." };
-    //     }
-    //     return { error: "Failed to update password. Please check your current password and try again." };
-    // }
+    } catch (error: any) {
+        if (error.code === 'auth/wrong-password') {
+            return { error: "Incorrect current password." };
+        }
+        return { error: "Failed to update password. Please check your current password and try again." };
+    }
 }
 
 export async function deleteUserAccount(password: string) {
-    // const user = authInstance.currentUser;
-    // if (!user || !user.email) {
-    //     return { error: "Could not find a logged-in user to delete." };
-    // }
-    // try {
-    //     const credential = EmailAuthProvider.credential(user.email, password);
-    //     await reauthenticateWithCredential(user, credential);
-    //     await deleteUser(user);
-        console.log("Mock delete user account.");
+    const user = authInstance.currentUser;
+    if (!user || !user.email) {
+        return { error: "Could not find a logged-in user to delete." };
+    }
+    try {
+        const credential = EmailAuthProvider.credential(user.email, password);
+        await reauthenticateWithCredential(user, credential);
+        // Delete user's document from 'users' collection first
+        await deleteDoc(doc(db, "users", user.uid));
+        // Then delete the user from auth
+        await deleteUser(user);
         return { success: true };
-    // } catch (error: any) {
-    //     if (error.code === 'auth/wrong-password') {
-    //         return { error: "Incorrect password. Account deletion failed." };
-    //     }
-    //     if (error.code === 'auth/requires-recent-login') {
-    //         return { error: "This is a sensitive operation. Please log out and log back in before trying again." };
-    //     }
-    //     return { error: "Failed to delete account. Please try again." };
-    // }
+    } catch (error: any) {
+        if (error.code === 'auth/wrong-password') {
+            return { error: "Incorrect password. Account deletion failed." };
+        }
+        if (error.code === 'auth/requires-recent-login') {
+            return { error: "This is a sensitive operation. Please log out and log back in before trying again." };
+        }
+        return { error: "Failed to delete account. Please try again." };
+    }
 }
