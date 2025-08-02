@@ -34,7 +34,9 @@ export function ResumeUpload({ onUpload, isLoading }: ResumeUploadProps) {
   };
   
   const handleCardClick = () => {
-    fileInputRef.current?.click();
+    if (!isLoading) {
+      fileInputRef.current?.click();
+    }
   }
 
   const handleFileChange = () => {
@@ -49,11 +51,11 @@ export function ResumeUpload({ onUpload, isLoading }: ResumeUploadProps) {
 
   return (
     <Card 
-        className="relative hover:border-primary/50 cursor-pointer transition-colors"
+        className="relative hover:border-primary/50 transition-colors"
         onClick={handleCardClick}
     >
-      <CardContent className="p-4">
-        <div className="flex items-center gap-4">
+      <div className={isLoading ? "cursor-not-allowed" : "cursor-pointer"}>
+        <CardContent className="p-4 flex items-center gap-4">
             <div className="bg-primary/10 p-3 rounded-full">
                 <UploadCloud className="w-6 h-6 text-primary" />
             </div>
@@ -61,7 +63,7 @@ export function ResumeUpload({ onUpload, isLoading }: ResumeUploadProps) {
                  <p className="text-lg font-semibold">{isLoading ? 'Analyzing...' : 'Upload Resume'}</p>
                  <p className="text-sm text-muted-foreground">{isLoading ? 'Please wait' : 'Click to select PDF'}</p>
             </div>
-        </div>
+        </CardContent>
         <form ref={formRef} onSubmit={handleSubmit} className="hidden">
           <Input 
             ref={fileInputRef} 
@@ -71,9 +73,10 @@ export function ResumeUpload({ onUpload, isLoading }: ResumeUploadProps) {
             accept=".pdf" 
             required 
             onChange={handleFileChange}
+            disabled={isLoading}
             />
         </form>
-      </CardContent>
+      </div>
     </Card>
   );
 }

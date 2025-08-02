@@ -57,11 +57,10 @@ export default function DashboardClient() {
         </Alert>
       )}
       
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <ResumeUpload onUpload={onResumeUpload} isLoading={isLoading} />
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-4">
+            <CardContent className="p-4 flex items-center gap-4">
                 <div className="bg-primary/10 p-3 rounded-full">
                   <Briefcase className="w-6 h-6 text-primary" />
                 </div>
@@ -69,12 +68,10 @@ export default function DashboardClient() {
                   <p className="text-2xl font-bold">{ isLoading ? '...' : stats.totalJobs}</p>
                   <p className="text-sm text-muted-foreground">Total Jobs Matched</p>
                 </div>
-              </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-4">
+            <CardContent className="p-4 flex items-center gap-4">
                 <div className="bg-primary/10 p-3 rounded-full">
                   <Users className="w-6 h-6 text-primary" />
                 </div>
@@ -82,12 +79,10 @@ export default function DashboardClient() {
                   <p className="text-2xl font-bold">{ isLoading ? '...' : stats.goodMatches}</p>
                   <p className="text-sm text-muted-foreground">Good Matches (&gt;70%)</p>
                 </div>
-              </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-4">
+            <CardContent className="p-4 flex items-center gap-4">
                 <div className="bg-primary/10 p-3 rounded-full">
                   <CheckCircle className="w-6 h-6 text-primary" />
                 </div>
@@ -95,14 +90,13 @@ export default function DashboardClient() {
                   <p className="text-2xl font-bold">{ isLoading ? '...' : stats.greatMatches}</p>
                   <p className="text-sm text-muted-foreground">Great Matches (&gt;85%)</p>
                 </div>
-              </div>
             </CardContent>
           </Card>
       </div>
 
       <div className="grid gap-4 md:gap-8 lg:grid-cols-5">
-        <div className="lg:col-span-3 grid gap-4 md:gap-8 md:grid-cols-2">
-            <div className="md:col-span-2">
+        <div className="lg:col-span-3 grid gap-4 md:gap-8 sm:grid-cols-2">
+            <div className="sm:col-span-2">
               <JobMatchesSummaryChart matches={processedData?.matches} isLoading={isLoading} />
             </div>
             <MatchScoreChart matches={processedData?.matches} isLoading={isLoading} />
@@ -110,7 +104,7 @@ export default function DashboardClient() {
         </div>
         <div className="lg:col-span-2">
            {isLoading && (
-             <Card className="h-full min-h-[500px] flex items-center justify-center">
+             <Card className="h-full min-h-[400px] flex items-center justify-center">
                 <CardContent className="text-center text-muted-foreground p-8">
                     <div className="flex items-center space-x-2">
                         <svg className="animate-spin h-5 w-5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -125,11 +119,11 @@ export default function DashboardClient() {
           )}
 
           {!processedData && !isLoading && !error && (
-             <Card className="h-full flex items-center justify-center min-h-[500px]">
+             <Card className="h-full flex items-center justify-center min-h-[400px]">
                 <CardContent className="text-center text-muted-foreground p-8">
                     <Bot size={48} className="mx-auto mb-4 text-primary/50" />
                     <p className="font-headline text-lg">Your resume analysis will appear here.</p>
-                    <p>Upload your PDF resume to get started.</p>
+                    <p className="text-sm">Upload your PDF resume to get started.</p>
                 </CardContent>
              </Card>
           )}
