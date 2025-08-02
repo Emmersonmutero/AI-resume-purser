@@ -12,8 +12,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { updateUserPassword, deleteUserAccount } from "@/lib/actions";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Separator } from "@/components/ui/separator";
-
 
 export default function SettingsPage() {
     const { toast } = useToast();
@@ -23,6 +21,7 @@ export default function SettingsPage() {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [deletePassword, setDeletePassword] = useState('');
 
     const handleChangePassword = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -44,13 +43,19 @@ export default function SettingsPage() {
     };
 
     const handleDeleteAccount = async () => {
+        if (!deletePassword) {
+            toast({ title: 'Error', description: "Please enter your password to confirm deletion.", variant: 'destructive' });
+            return;
+        }
         setIsDeleteLoading(true);
-        const result = await deleteUserAccount();
+        const result = await deleteUserAccount(deletePassword);
         if (result.error) {
             toast({ title: 'Error', description: result.error, variant: 'destructive' });
             setIsDeleteLoading(false);
         } else {
             toast({ title: 'Account Deleted', description: 'Your account has been permanently deleted.' });
+            // The router.push will happen after state is updated and onAuthStateChanged detects a null user.
+            // Forcing it here can cause race conditions.
             router.push('/register');
         }
     };
@@ -96,10 +101,21 @@ export default function SettingsPage() {
                         <CardTitle className="text-destructive">Delete Account</CardTitle>
                         <CardDescription>Permanently delete your account and all associated data. This action is irreversible.</CardDescription>
                     </CardHeader>
+                     <CardContent>
+                        <Label htmlFor="delete-password">Confirm Password</Label>
+                        <Input 
+                            id="delete-password" 
+                            type="password" 
+                            value={deletePassword} 
+                            onChange={(e) => setDeletePassword(e.target.value)} 
+                            placeholder="Enter your password to confirm"
+                            disabled={isDeleteLoading}
+                        />
+                    </CardContent>
                     <CardFooter className="flex justify-start">
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <Button variant="destructive" disabled={isDeleteLoading}>Delete Account</Button>
+                                <Button variant="destructive" disabled={isDeleteLoading}>Delete My Account</Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                                 <AlertDialogHeader>
@@ -111,7 +127,7 @@ export default function SettingsPage() {
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                 <AlertDialogCancel disabled={isDeleteLoading}>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleDeleteAccount} disabled={isDeleteLoading}>
+                                <AlertDialogAction onClick={handleDeleteAccount} disabled={isDeleteLoading || !deletePassword}>
                                     {isDeleteLoading ? 'Deleting...' : 'Continue'}
                                 </AlertDialogAction>
                                 </AlertDialogFooter>

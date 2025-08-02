@@ -265,7 +265,7 @@ export async function signUpWithEmail(formData: FormData) {
         role: role,
         createdAt: new Date(),
     });
-    return { userId: user.uid };
+    return { userId: user.uid, role: role };
   } catch (error: any) {
     return { error: error.message };
   }
@@ -279,7 +279,8 @@ export async function signInWithEmail(formData: FormData) {
   const { email, password } = result.data;
   try {
     const userCredential = await signInWithEmailAndPassword(authInstance, email, password);
-    return { userId: userCredential.user.uid };
+    const role = await getUserRole(userCredential.user.uid);
+    return { userId: userCredential.user.uid, role: role };
   } catch (error: any)
    {
     return { error: error.message };
@@ -329,22 +330,30 @@ export async function updateUserPassword(currentPassword: string, newPassword: s
         await updatePassword(user, newPassword);
         return { success: true };
     } catch (error: any) {
+        if (error.code === 'auth/wrong-password') {
+            return { error: "Incorrect current password." };
+        }
         return { error: "Failed to update password. Please check your current password and try again." };
     }
 }
 
-export async function deleteUserAccount() {
+export async function deleteUserAccount(password: string) {
     const user = authInstance.currentUser;
-    if (!user) {
-        return { error: "You must be logged in to delete your account." };
+    if (!user || !user.email) {
+        return { error: "Could not find a logged-in user to delete." };
     }
     try {
+        const credential = EmailAuthProvider.credential(user.email, password);
+        await reauthenticateWithCredential(user, credential);
         await deleteUser(user);
         return { success: true };
     } catch (error: any) {
+        if (error.code === 'auth/wrong-password') {
+            return { error: "Incorrect password. Account deletion failed." };
+        }
         if (error.code === 'auth/requires-recent-login') {
             return { error: "This is a sensitive operation. Please log out and log back in before trying again." };
         }
-        return { error: "Failed to delete account." };
+        return { error: "Failed to delete account. Please try again." };
     }
 }
