@@ -60,6 +60,8 @@ export default function LoginPage() {
     } catch (error: any) {
       if (error.code === 'auth/operation-not-allowed') {
         toast({ title: 'Login Failed', description: 'Google Sign-in is not enabled for this project. Please enable it in the Firebase console.', variant: 'destructive' });
+      } else if (error.code === 'auth/unauthorized-domain') {
+          toast({ title: 'Login Failed', description: 'This domain is not authorized for Google Sign-in. Please add it to the list of authorized domains in the Firebase console.', variant: 'destructive' });
       } else {
         toast({ title: 'Login Failed', description: error.message, variant: 'destructive' });
       }
@@ -75,6 +77,8 @@ export default function LoginPage() {
     } catch (error: any) {
       if (error.code === 'auth/operation-not-allowed') {
         toast({ title: 'Login Failed', description: 'Facebook Sign-in is not enabled for this project. Please enable it in the Firebase console.', variant: 'destructive' });
+      } else if (error.code === 'auth/unauthorized-domain') {
+          toast({ title: 'Login Failed', description: 'This domain is not authorized for Facebook Sign-in. Please add it to the list of authorized domains in the Firebase console and configure the OAuth redirect URI in your Facebook App settings.', variant: 'destructive' });
       } else {
         toast({ title: 'Login Failed', description: error.message, variant: 'destructive' });
       }
