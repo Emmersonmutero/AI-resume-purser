@@ -1,9 +1,15 @@
+'use client';
+
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { FileText } from 'lucide-react';
+import { FileText, Facebook } from 'lucide-react';
+import { signInWithEmail, signInWithGoogle, signInWithFacebook } from '@/lib/auth';
+import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 const GoogleIcon = () => (
     <svg role="img" viewBox="0 0 24 24" className="w-4 h-4 mr-2">
@@ -14,7 +20,53 @@ const GoogleIcon = () => (
     </svg>
   );
 
+const FacebookIcon = () => (
+    <svg role="img" viewBox="0 0 24 24" className="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z" fill="currentColor"/>
+    </svg>
+);
+
+
 export default function LoginPage() {
+  const { toast } = useToast();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleEmailLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsLoading(true);
+    const formData = new FormData(event.currentTarget);
+    const result = await signInWithEmail(formData);
+    if (result?.error) {
+      toast({ title: 'Login Failed', description: result.error, variant: 'destructive' });
+    } else {
+        router.push('/dashboard');
+    }
+    setIsLoading(false);
+  };
+  
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    const result = await signInWithGoogle();
+    if (result?.error) {
+        toast({ title: 'Login Failed', description: result.error, variant: 'destructive' });
+        setIsLoading(false);
+    } else {
+        router.push('/dashboard');
+    }
+  };
+
+  const handleFacebookLogin = async () => {
+    setIsLoading(true);
+    const result = await signInWithFacebook();
+    if (result?.error) {
+        toast({ title: 'Login Failed', description: result.error, variant: 'destructive' });
+        setIsLoading(false);
+    } else {
+        router.push('/dashboard');
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-secondary/50 p-4">
       <Card className="w-full max-w-sm">
@@ -29,23 +81,37 @@ export default function LoginPage() {
           <CardDescription>Enter your credentials to access your account.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4">
+          <form onSubmit={handleEmailLogin} className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="m@example.com" required />
+              <Input id="email" name="email" type="email" placeholder="m@example.com" required disabled={isLoading} />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" required />
+              <Input id="password" name="password" type="password" required disabled={isLoading} />
             </div>
-            <Button type="submit" className="w-full">
-              Login
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Logging in...' : 'Login'}
             </Button>
-            <Button variant="outline" className="w-full">
-              <GoogleIcon />
-              Login with Google
-            </Button>
-          </div>
+          </form>
+            <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+                <Button variant="outline" className="w-full" onClick={handleGoogleLogin} disabled={isLoading}>
+                    <GoogleIcon />
+                    Google
+                </Button>
+                <Button variant="outline" className="w-full" onClick={handleFacebookLogin} disabled={isLoading}>
+                    <FacebookIcon />
+                    Facebook
+                </Button>
+            </div>
           <div className="mt-4 text-center text-sm">
             Don&apos;t have an account?{' '}
             <Link href="/register" className="underline">
