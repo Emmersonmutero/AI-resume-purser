@@ -59,11 +59,11 @@ export default function RegisterPage() {
         if (result?.error) {
             toast({ title: 'Registration Failed', description: result.error, variant: 'destructive' });
             setIsLoading(false);
-        } else {
+        } else if (result.success) {
              if (result.role === 'recruiter') {
-                router.push('/dashboard/recruiter');
+                router.replace('/dashboard/recruiter');
             } else {
-                router.push('/dashboard/job-seeker');
+                router.replace('/dashboard/job-seeker');
             }
         }
     };
@@ -77,7 +77,7 @@ export default function RegisterPage() {
             if (socialResult.error) {
                 throw new Error(socialResult.error);
             }
-            router.push('/dashboard');
+            router.replace('/dashboard');
         } catch (error: any) {
             let description = error.message;
             if (error.code === 'auth/operation-not-allowed') {

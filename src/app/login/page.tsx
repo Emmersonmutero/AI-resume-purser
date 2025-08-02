@@ -40,7 +40,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const redirectToDashboard = () => {
-    router.push('/dashboard');
+    router.replace('/dashboard');
   };
 
   const handleEmailLogin = async (event: React.FormEvent<HTMLFormElement>) => {

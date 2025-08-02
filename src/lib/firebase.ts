@@ -1,10 +1,9 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
-import { getAuth, initializeAuth, browserLocalPersistence, browserSessionPersistence } from "firebase/auth";
+import { getAuth, initializeAuth, browserLocalPersistence } from "firebase/auth";
 import { getFirestore } from 'firebase/firestore';
 
 // Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyB8x9A6JELX6_I8JS_DtUM_dg7wFvViVLk",
   authDomain: "sjat-5a48f.firebaseapp.com",
@@ -16,19 +15,12 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-function initializeFirebaseApp(): FirebaseApp {
-    if (getApps().length) {
-        return getApp();
-    }
-    return initializeApp(firebaseConfig);
-}
+const app: FirebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-const app = initializeFirebaseApp();
-// This ensures that the user's session is persisted locally.
 const auth = initializeAuth(app, {
     persistence: browserLocalPersistence
 });
-const db = getFirestore(app);
 
+const db = getFirestore(app);
 
 export { app, auth, db };

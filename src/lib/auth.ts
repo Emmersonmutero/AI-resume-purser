@@ -1,8 +1,5 @@
 'use client';
 
-import { getAuth } from 'firebase/auth';
-import { app } from './firebase';
+import { auth } from './firebase';
 
-const authInstance = getAuth(app);
-
-export const auth = authInstance;
+export { auth };

@@ -15,10 +15,7 @@ import {
 import {z} from 'zod';
 import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, Timestamp, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser, type User as FirebaseUser } from 'firebase/auth';
-import { app } from './firebase';
-import { auth as authInstance } from './auth';
-
-const db = getFirestore(app);
+import { auth, db } from './firebase';
 
 export type JobPosting = {
   id: string;
@@ -143,7 +140,7 @@ const jobPostingSchema = z.object({
 });
 
 export async function createJobPosting(formData: FormData) {
-    const user = authInstance.currentUser;
+    const user = auth.currentUser;
     if (!user) {
         return { success: false, error: "You must be logged in to post a job." };
     }
@@ -175,7 +172,7 @@ export async function applyForJob(
     matchScore: number,
     resumeData: ExtractResumeDataOutput
 ) {
-    const user = authInstance.currentUser;
+    const user = auth.currentUser;
     if (!user) {
         return { success: false, error: "You must be logged in to apply." };
     }
@@ -257,7 +254,7 @@ export async function signUpWithEmail(formData: FormData) {
   }
   const { email, password, role } = result.data;
   try {
-    const userCredential = await createUserWithEmailAndPassword(authInstance, email, password);
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
     await setDoc(doc(db, "users", user.uid), {
@@ -279,7 +276,7 @@ export async function signInWithEmail(formData: FormData) {
   }
   const { email, password } = result.data;
   try {
-    const userCredential = await signInWithEmailAndPassword(authInstance, email, password);
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const role = await getUserRole(userCredential.user.uid);
     return { success: true, userId: userCredential.user.uid, role };
   } catch (error: any) {
@@ -314,7 +311,7 @@ export async function handleSocialSignIn(user: FirebaseUser) {
 
 export async function signOut() {
   try {
-    await firebaseSignOut(authInstance);
+    await firebaseSignOut(auth);
     return { success: true };
   } catch (error: any) {
     return { error: error.message };
@@ -322,7 +319,7 @@ export async function signOut() {
 }
 
 export async function updateUserProfile(displayName: string) {
-    const user = authInstance.currentUser;
+    const user = auth.currentUser;
     if (!user) {
         return { error: "You must be logged in to update your profile." };
     }
@@ -337,7 +334,7 @@ export async function updateUserProfile(displayName: string) {
 const passwordSchema = z.string().min(6, "Password must be at least 6 characters long.");
 
 export async function updateUserPassword(currentPassword: string, newPassword: string) {
-    const user = authInstance.currentUser;
+    const user = auth.currentUser;
     if (!user || !user.email) {
         return { error: "You must be logged in." };
     }
@@ -363,7 +360,7 @@ export async function updateUserPassword(currentPassword: string, newPassword: s
 }
 
 export async function deleteUserAccount(password: string) {
-    const user = authInstance.currentUser;
+    const user = auth.currentUser;
     if (!user || !user.email) {
         return { error: "Could not find a logged-in user to delete." };
     }
