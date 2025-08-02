@@ -14,7 +14,7 @@ import {
 } from '@/ai/flows/match-resume-to-jobs';
 import {z} from 'zod';
 import { fileTypeFromBuffer } from 'file-type';
-import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, Timestamp } from 'firebase/firestore';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut } from 'firebase/auth';
 import { app } from './firebase';
 import { redirect } from 'next/navigation';
@@ -40,7 +40,7 @@ export type Application = {
     applicantEmail: string;
     matchScore: number;
     resumeData: ExtractResumeDataOutput;
-    appliedAt: any;
+    appliedAt: Timestamp;
 };
 
 export type ProcessedResumeData = {
@@ -219,8 +219,7 @@ export async function getApplicantsForRecruiter(recruiterId: string): Promise<Ap
             ...doc.data()
         } as Application));
 
-        // Note: `toMillis()` is not available on server-side timestamps. Use `toDate()`
-        return applicants.sort((a, b) => (b.appliedAt as any).toDate().getTime() - (a.appliedAt as any).toDate().getTime());
+        return applicants.sort((a, b) => b.appliedAt.toDate().getTime() - a.appliedAt.toDate().getTime());
     } catch (error) {
         console.error("Error fetching applicants:", error);
         return [];
@@ -263,7 +262,6 @@ export async function signUpWithEmail(formData: FormData) {
     const userCredential = await createUserWithEmailAndPassword(authInstance, email, password);
     const user = userCredential.user;
 
-    // Save user role to Firestore
     await setDoc(doc(db, "users", user.uid), {
         email: user.email,
         role: role,
@@ -273,7 +271,6 @@ export async function signUpWithEmail(formData: FormData) {
   } catch (error: any) {
     return { error: error.message };
   }
-  redirect('/dashboard');
 }
 
 export async function signInWithEmail(formData: FormData) {
@@ -288,7 +285,6 @@ export async function signInWithEmail(formData: FormData) {
    {
     return { error: error.message };
   }
-  redirect('/dashboard');
 }
 
 export async function signOut() {
