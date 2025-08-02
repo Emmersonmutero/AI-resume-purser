@@ -8,7 +8,7 @@ import { JobMatches } from "./job-matches";
 import { handleResumeUpload } from "@/lib/actions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Terminal, Bot, FileText, Briefcase, Users } from "lucide-react";
+import { Terminal, Bot, FileText, Briefcase, Users, CheckCircle } from "lucide-react";
 import { MatchScoreChart } from "./match-score-chart";
 import { JobMatchesSummaryChart } from "./job-matches-summary-chart";
 import { JobDistributionChart } from "./job-distribution-chart";
@@ -80,7 +80,7 @@ export default function DashboardClient() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{ isLoading ? '...' : stats.goodMatches}</p>
-                  <p className="text-sm text-muted-foreground">Good Matches</p>
+                  <p className="text-sm text-muted-foreground">Good Matches (&gt;70%)</p>
                 </div>
               </div>
             </CardContent>
@@ -89,11 +89,11 @@ export default function DashboardClient() {
             <CardContent className="p-4">
               <div className="flex items-center gap-4">
                 <div className="bg-primary/10 p-3 rounded-full">
-                  <FileText className="w-6 h-6 text-primary" />
+                  <CheckCircle className="w-6 h-6 text-primary" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{ isLoading ? '...' : stats.greatMatches}</p>
-                  <p className="text-sm text-muted-foreground">Great Matches</p>
+                  <p className="text-sm text-muted-foreground">Great Matches (&gt;85%)</p>
                 </div>
               </div>
             </CardContent>
@@ -101,7 +101,7 @@ export default function DashboardClient() {
       </div>
 
       <div className="grid gap-4 md:gap-8 lg:grid-cols-5">
-        <div className="lg:col-span-3 grid gap-4 md:grid-cols-2">
+        <div className="lg:col-span-3 grid gap-4 md:gap-8 md:grid-cols-2">
             <div className="md:col-span-2">
               <JobMatchesSummaryChart matches={processedData?.matches} isLoading={isLoading} />
             </div>

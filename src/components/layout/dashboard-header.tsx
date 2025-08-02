@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { signOut } from '@/lib/auth';
-import { FileText, LogOut, User, Search } from 'lucide-react';
+import { FileText, LogOut, User, Search, Settings } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
@@ -48,13 +48,12 @@ export function DashboardHeader() {
       <div className="flex items-center gap-2">
         <SidebarTrigger className="md:hidden"/>
         <div className='hidden md:block'>
-          <h1 className="text-xl font-semibold">Welcome, {user?.displayName ?? 'User'}!</h1>
-          <p className="text-sm text-muted-foreground">Let's find your next job.</p>
+          <h1 className="text-lg font-semibold">Welcome, {user?.displayName ?? 'User'}!</h1>
         </div>
       </div>
      
-      <div className="flex flex-1 items-center justify-end gap-4">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-1 items-center justify-end gap-2">
+        <div className="relative flex-1 max-w-md ml-auto">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
@@ -95,6 +94,10 @@ export function DashboardHeader() {
             <DropdownMenuItem disabled>
               <User className="mr-2 h-4 w-4" />
               <span>Profile</span>
+            </DropdownMenuItem>
+             <DropdownMenuItem disabled>
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Settings</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
