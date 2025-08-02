@@ -66,7 +66,11 @@ export default function RegisterPage() {
             await signInWithPopup(auth, googleProvider);
             router.push('/dashboard');
         } catch (error: any) {
-            toast({ title: 'Login Failed', description: error.message, variant: 'destructive' });
+            if (error.code === 'auth/operation-not-allowed') {
+                toast({ title: 'Login Failed', description: 'Google Sign-in is not enabled for this project. Please enable it in the Firebase console.', variant: 'destructive' });
+            } else {
+                toast({ title: 'Login Failed', description: error.message, variant: 'destructive' });
+            }
             setIsLoading(false);
         }
     };
@@ -77,7 +81,11 @@ export default function RegisterPage() {
             await signInWithPopup(auth, facebookProvider);
             router.push('/dashboard');
         } catch (error: any) {
-            toast({ title: 'Login Failed', description: error.message, variant: 'destructive' });
+            if (error.code === 'auth/operation-not-allowed') {
+                toast({ title: 'Login Failed', description: 'Facebook Sign-in is not enabled for this project. Please enable it in the Firebase console.', variant: 'destructive' });
+            } else {
+                toast({ title: 'Login Failed', description: error.message, variant: 'destructive' });
+            }
             setIsLoading(false);
         }
       };
