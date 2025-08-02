@@ -27,12 +27,12 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-type ThreatSummaryChartProps = {
+type JobMatchesSummaryChartProps = {
   matches: MatchResumeToJobsOutput | null;
   isLoading: boolean;
 };
 
-export function ThreatSummaryChart({ matches, isLoading }: ThreatSummaryChartProps) {
+export function JobMatchesSummaryChart({ matches, isLoading }: JobMatchesSummaryChartProps) {
   const chartData = React.useMemo(() => {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     if (!matches) {

@@ -10,24 +10,12 @@ import {
   SidebarGroup,
   SidebarGroupLabel
 } from '@/components/ui/sidebar';
-import { FileText, LayoutGrid, AlertTriangle, File, BarChart, Shield, Settings, LifeBuoy, LogOut, ChevronRight } from 'lucide-react';
+import { FileText, LayoutGrid, Briefcase, File, BarChart, Settings, LifeBuoy, LogOut, ChevronRight, Bot } from 'lucide-react';
 import { Button } from '../ui/button';
 import Link from 'next/link';
 import { signOut } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '../ui/card';
-
-const VertexGuardIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M12 22V12" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M22 7L12 12" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M2 7L12 12" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M12 12L7 9.5" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M12 12L17 9.5" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-)
-
 
 export function DashboardSidebar() {
     const { toast } = useToast();
@@ -45,10 +33,10 @@ export function DashboardSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="flex items-center gap-2">
-            <VertexGuardIcon />
-            <span className="text-lg font-semibold">VertexGuard</span>
-        </div>
+        <Link href="/" className="flex items-center gap-2">
+            <FileText className="w-6 h-6 text-primary" />
+            <span className="text-lg font-semibold">ResumeFlow</span>
+        </Link>
       </SidebarHeader>
       <SidebarContent className="p-2">
         <SidebarGroup>
@@ -62,32 +50,32 @@ export function DashboardSidebar() {
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton href="#">
-                <AlertTriangle />
-                Issues
+                <Briefcase />
+                Job Matches
                 <ChevronRight className="ml-auto" />
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton href="#">
                 <File />
-                Files
+                My Resumes
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
          <SidebarGroup>
-          <SidebarGroupLabel>Reports</SidebarGroupLabel>
+          <SidebarGroupLabel>Analysis</SidebarGroupLabel>
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton href="#">
                 <BarChart />
-                Threat Details
+                Reports
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton href="#">
-                <Shield />
-                Threats
+                <Bot />
+                AI Insights
                  <ChevronRight className="ml-auto" />
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -115,10 +103,10 @@ export function DashboardSidebar() {
         <Card className='bg-card/80 border-primary/20'>
             <CardContent className='p-4 text-center'>
                 <div className='w-8 h-8 mx-auto mb-2 rounded-full bg-primary/10 flex items-center justify-center'>
-                    <Shield className='w-5 h-5 text-primary'/>
+                    <Bot className='w-5 h-5 text-primary'/>
                 </div>
-                <p className='text-sm font-medium'>Enhance your security</p>
-                <Button size="sm" className="w-full mt-2">Upgrade</Button>
+                <p className='text-sm font-medium'>Get deeper insights</p>
+                <Button size="sm" className="w-full mt-2">Upgrade to Pro</Button>
             </CardContent>
         </Card>
         <SidebarMenu>

@@ -49,7 +49,7 @@ export function DashboardHeader() {
         <SidebarTrigger className="md:hidden"/>
         <div className='hidden md:block'>
           <h1 className="text-xl font-semibold">Welcome, {user?.displayName ?? 'User'}!</h1>
-          <p className="text-sm text-muted-foreground">Security is a process, not a product.</p>
+          <p className="text-sm text-muted-foreground">Let's find your next job.</p>
         </div>
       </div>
      
@@ -58,7 +58,7 @@ export function DashboardHeader() {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search..."
+            placeholder="Search jobs..."
             className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
           />
         </div>

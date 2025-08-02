@@ -31,12 +31,12 @@ const chartConfig = {
     "Other": { label: "Other", color: "hsl(var(--chart-5))" },
 } satisfies ChartConfig
 
-type ThreatsByVirusChartProps = {
+type JobDistributionChartProps = {
   matches: MatchResumeToJobsOutput | null;
   isLoading: boolean;
 };
 
-export function ThreatsByVirusChart({ matches, isLoading }: ThreatsByVirusChartProps) {
+export function JobDistributionChart({ matches, isLoading }: JobDistributionChartProps) {
     const chartData = React.useMemo(() => {
         if (!matches) return [];
 
@@ -82,7 +82,7 @@ export function ThreatsByVirusChart({ matches, isLoading }: ThreatsByVirusChartP
     <Card>
       <CardHeader>
         <div className="flex justify-between items-center w-full">
-            <CardTitle>Threats By Keyword</CardTitle>
+            <CardTitle>Job Distribution</CardTitle>
              <Button variant="ghost" size="icon">
                 <MoreVertical className="h-4 w-4"/>
             </Button>

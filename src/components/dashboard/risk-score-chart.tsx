@@ -39,12 +39,12 @@ const chartConfig = {
   },
 }
 
-type RiskScoreChartProps = {
+type MatchScoreChartProps = {
   matches: MatchResumeToJobsOutput | null;
   isLoading: boolean;
 };
 
-export function RiskScoreChart({ matches, isLoading }: RiskScoreChartProps) {
+export function MatchScoreChart({ matches, isLoading }: MatchScoreChartProps) {
   const averageScore = React.useMemo(() => {
     if (!matches || matches.length === 0) return 0;
     const totalScore = matches.reduce((sum, match) => sum + match.matchScore, 0);
@@ -69,7 +69,7 @@ export function RiskScoreChart({ matches, isLoading }: RiskScoreChartProps) {
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
         <div className="flex justify-between items-center w-full">
-            <CardTitle>Risk Score</CardTitle>
+            <CardTitle>Match Score</CardTitle>
              <Button variant="ghost" size="icon">
                 <MoreVertical className="h-4 w-4"/>
             </Button>

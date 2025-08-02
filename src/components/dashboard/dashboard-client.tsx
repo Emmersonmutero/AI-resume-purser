@@ -9,9 +9,9 @@ import { handleResumeUpload } from "@/lib/actions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal, Bot, FileText, Briefcase, Users } from "lucide-react";
-import { RiskScoreChart } from "./risk-score-chart";
-import { ThreatSummaryChart } from "./threat-summary-chart";
-import { ThreatsByVirusChart } from "./threats-by-virus-chart";
+import { MatchScoreChart } from "./match-score-chart";
+import { JobMatchesSummaryChart } from "./job-matches-summary-chart";
+import { JobDistributionChart } from "./job-distribution-chart";
 
 export default function DashboardClient() {
   const [processedData, setProcessedData] = useState<ProcessedResumeData | null>(null);
@@ -103,10 +103,10 @@ export default function DashboardClient() {
       <div className="grid gap-4 md:gap-8 lg:grid-cols-5">
         <div className="lg:col-span-3 grid gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
-              <ThreatSummaryChart matches={processedData?.matches} isLoading={isLoading} />
+              <JobMatchesSummaryChart matches={processedData?.matches} isLoading={isLoading} />
             </div>
-            <RiskScoreChart matches={processedData?.matches} isLoading={isLoading} />
-            <ThreatsByVirusChart matches={processedData?.matches} isLoading={isLoading} />
+            <MatchScoreChart matches={processedData?.matches} isLoading={isLoading} />
+            <JobDistributionChart matches={processedData?.matches} isLoading={isLoading} />
         </div>
         <div className="lg:col-span-2">
            {isLoading && (
