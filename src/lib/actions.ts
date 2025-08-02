@@ -17,7 +17,6 @@ import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, g
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser } from 'firebase/auth';
 import { app } from './firebase';
 import { auth as authInstance } from './auth';
-import { redirect } from 'next/navigation';
 
 const db = getFirestore(app);
 
@@ -235,7 +234,6 @@ export async function getUserRole(userId: string): Promise<string | null> {
         return 'job-seeker'; // Default to job-seeker if doc doesn't exist
     } catch (error) {
         console.error("Error fetching user role:", error);
-        // Return a default role or null on error to prevent breaking the flow
         return 'job-seeker';
     }
 }
@@ -291,6 +289,7 @@ export async function signInWithEmail(formData: FormData) {
 export async function signOut() {
   try {
     await firebaseSignOut(authInstance);
+    return { success: true };
   } catch (error: any) {
     return { error: error.message };
   }
@@ -343,6 +342,9 @@ export async function deleteUserAccount() {
         await deleteUser(user);
         return { success: true };
     } catch (error: any) {
-        return { error: "Failed to delete account. Please log out and log back in before trying again." };
+        if (error.code === 'auth/requires-recent-login') {
+            return { error: "This is a sensitive operation. Please log out and log back in before trying again." };
+        }
+        return { error: "Failed to delete account." };
     }
 }
