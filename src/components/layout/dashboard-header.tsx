@@ -10,8 +10,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
-import { signOut } from '@/lib/actions';
-import { FileText, LogOut, User, Search, Settings } from 'lucide-react';
+import { getApplicantsForRecruiter, getUserRole, signOut, type Application } from '@/lib/actions';
+import { Bell, LogOut, User, Search, Settings, Briefcase, CheckCircle } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
@@ -21,15 +21,29 @@ import type { User as FirebaseUser } from 'firebase/auth';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
+import { formatDistanceToNow } from 'date-fns';
+import { Badge } from '../ui/badge';
 
 export function DashboardHeader() {
   const { toast } = useToast();
   const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [role, setRole] = useState<string | null>(null);
+  const [notifications, setNotifications] = useState<Application[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
       setUser(user);
+      if (user) {
+        const userRole = await getUserRole(user.uid);
+        setRole(userRole);
+        if (userRole === 'recruiter') {
+          const fetchedApplicants = await getApplicantsForRecruiter(user.uid);
+          setNotifications(fetchedApplicants);
+        }
+      }
+      setIsLoading(false);
     });
     return () => unsubscribe();
   }, []);
@@ -47,6 +61,8 @@ export function DashboardHeader() {
     }
   };
 
+  const hasUnread = notifications.length > 0;
+
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
       <SidebarTrigger className="sm:hidden" />
@@ -59,6 +75,47 @@ export function DashboardHeader() {
         />
       </div>
       <ThemeToggle />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+           <Button variant="ghost" size="icon" className="relative">
+             <Bell className="h-5 w-5" />
+             {hasUnread && <span className="absolute top-1 right-1 flex h-2 w-2 rounded-full bg-primary" />}
+             <span className="sr-only">Toggle notifications</span>
+           </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-80" align="end">
+          <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {isLoading ? (
+             <DropdownMenuItem>Loading...</DropdownMenuItem>
+          ) : role === 'recruiter' && notifications.length > 0 ? (
+             notifications.slice(0, 5).map(app => (
+                <DropdownMenuItem key={app.id} className="flex gap-2 items-start" onSelect={() => router.push('/dashboard/recruiter')}>
+                   <div className="bg-primary/10 p-2 rounded-full mt-1">
+                     <Briefcase className="h-4 w-4 text-primary"/>
+                   </div>
+                   <div className="flex-1">
+                      <p className="font-medium text-sm">{app.applicantName} <span className="text-muted-foreground font-normal">applied for</span> {app.jobTitle}</p>
+                      <p className="text-xs text-muted-foreground">{formatDistanceToNow(app.appliedAt.toDate(), { addSuffix: true })}</p>
+                   </div>
+                </DropdownMenuItem>
+             ))
+          ) : role === 'job-seeker' ? (
+             <DropdownMenuItem className="flex gap-2 items-start">
+               <div className="bg-primary/10 p-2 rounded-full mt-1">
+                  <CheckCircle className="h-4 w-4 text-primary"/>
+               </div>
+                <div className="flex-1">
+                  <p className="font-medium text-sm">Welcome to ResumeFlow!</p>
+                  <p className="text-xs text-muted-foreground">Upload your resume to get started.</p>
+                </div>
+             </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem>No new notifications</DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
