@@ -74,23 +74,29 @@ export function DashboardSidebar() {
           <SidebarGroupLabel>General</SidebarGroupLabel>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton href={getDashboardHref()} isActive={pathname.startsWith('/dashboard/recruiter') || pathname.startsWith('/dashboard/job-seeker')}>
-                <LayoutGrid />
-                Dashboard
+              <SidebarMenuButton asChild isActive={pathname.startsWith('/dashboard/recruiter') || pathname.startsWith('/dashboard/job-seeker')}>
+                <Link href={getDashboardHref()}>
+                  <LayoutGrid />
+                  Dashboard
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
             {userRole === 'job-seeker' && (
               <SidebarMenuItem>
-                <SidebarMenuButton href="/dashboard/resumes" isActive={pathname.startsWith('/dashboard/resumes')}>
-                  <File />
-                  My Resumes
+                <SidebarMenuButton asChild isActive={pathname.startsWith('/dashboard/resumes')}>
+                   <Link href="/dashboard/resumes">
+                    <File />
+                    My Resumes
+                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             )}
              <SidebarMenuItem>
-              <SidebarMenuButton href="/dashboard/profile" isActive={pathname.startsWith('/dashboard/profile')}>
-                <User />
-                Profile
+              <SidebarMenuButton asChild isActive={pathname.startsWith('/dashboard/profile')}>
+                <Link href="/dashboard/profile">
+                  <User />
+                  Profile
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
@@ -99,15 +105,19 @@ export function DashboardSidebar() {
           <SidebarGroupLabel>Settings</SidebarGroupLabel>
           <SidebarMenu>
              <SidebarMenuItem>
-              <SidebarMenuButton href="/dashboard/help" isActive={pathname === '/dashboard/help'}>
-                <LifeBuoy />
-                Help & Support
+              <SidebarMenuButton asChild isActive={pathname === '/dashboard/help'}>
+                <Link href="/dashboard/help">
+                  <LifeBuoy />
+                  Help & Support
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton href="/dashboard/settings" isActive={pathname === '/dashboard/settings'}>
-                <Settings />
-                Settings
+              <SidebarMenuButton asChild isActive={pathname === '/dashboard/settings'}>
+                <Link href="/dashboard/settings">
+                  <Settings />
+                  Settings
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
