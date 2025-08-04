@@ -41,6 +41,14 @@ export default function RegisterPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [role, setRole] = useState<'job-seeker' | 'recruiter'>('job-seeker');
 
+    const redirectToDashboard = (role: string | null) => {
+        if (role === 'recruiter') {
+            router.replace('/dashboard/recruiter');
+        } else {
+            router.replace('/dashboard/job-seeker');
+        }
+    };
+
     const handleEmailRegister = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
@@ -60,11 +68,8 @@ export default function RegisterPage() {
             toast({ title: 'Registration Failed', description: result.error, variant: 'destructive' });
             setIsLoading(false);
         } else if (result.success) {
-             if (result.role === 'recruiter') {
-                router.replace('/dashboard/recruiter');
-            } else {
-                router.replace('/dashboard/job-seeker');
-            }
+            toast({ title: 'Registration Successful', description: 'Redirecting to your dashboard...' });
+            redirectToDashboard(result.role);
         }
     };
 
@@ -77,7 +82,8 @@ export default function RegisterPage() {
             if (socialResult.error) {
                 throw new Error(socialResult.error);
             }
-            router.replace('/dashboard');
+            toast({ title: 'Login Successful', description: 'Redirecting to your dashboard...' });
+            redirectToDashboard(socialResult.role);
         } catch (error: any) {
             let description = error.message;
             if (error.code === 'auth/operation-not-allowed') {

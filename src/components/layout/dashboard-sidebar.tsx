@@ -1,4 +1,3 @@
-
 'use client';
 import {
   Sidebar,
@@ -27,6 +26,7 @@ export function DashboardSidebar() {
     const pathname = usePathname();
     const router = useRouter();
     const [userRole, setUserRole] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
      useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user: FirebaseUser | null) => {
@@ -36,6 +36,7 @@ export function DashboardSidebar() {
             } else {
                 setUserRole(null);
             }
+            setIsLoading(false);
         });
         return () => unsubscribe();
     }, []);
@@ -54,6 +55,7 @@ export function DashboardSidebar() {
       };
       
     const getDashboardHref = () => {
+        if (isLoading) return '#';
         if (userRole === 'recruiter') return '/dashboard/recruiter';
         return '/dashboard/job-seeker';
     }
@@ -71,7 +73,7 @@ export function DashboardSidebar() {
           <SidebarGroupLabel>General</SidebarGroupLabel>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton href={getDashboardHref()} isActive={pathname === getDashboardHref()}>
+              <SidebarMenuButton href={getDashboardHref()} isActive={pathname.startsWith('/dashboard/recruiter') || pathname.startsWith('/dashboard/job-seeker')}>
                 <LayoutGrid />
                 Dashboard
               </SidebarMenuButton>

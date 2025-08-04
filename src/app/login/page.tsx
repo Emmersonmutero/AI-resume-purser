@@ -57,6 +57,7 @@ export default function LoginPage() {
       toast({ title: 'Login Failed', description: result.error, variant: 'destructive' });
       setIsLoading(false);
     } else {
+      toast({ title: 'Login Successful', description: 'Redirecting to your dashboard...' });
       redirectToDashboard(result.role);
     }
   };
@@ -70,6 +71,7 @@ export default function LoginPage() {
       if (socialResult.error) {
           throw new Error(socialResult.error);
       }
+      toast({ title: 'Login Successful', description: 'Redirecting to your dashboard...' });
       redirectToDashboard(socialResult.role);
     } catch (error: any) {
       let description = error.message;
