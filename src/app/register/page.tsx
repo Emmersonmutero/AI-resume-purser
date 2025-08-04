@@ -15,6 +15,7 @@ import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } fr
 import { app } from '@/lib/firebase';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
+import { ThemeToggle } from '@/components/layout/theme-toggle';
 
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
@@ -100,7 +101,10 @@ export default function RegisterPage() {
     };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background p-4">
+    <div className="relative flex items-center justify-center min-h-screen bg-background p-4">
+       <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
             <div className="flex justify-center items-center mb-4">

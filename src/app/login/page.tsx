@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
 import { app } from '@/lib/firebase';
+import { ThemeToggle } from '@/components/layout/theme-toggle';
 
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
@@ -89,7 +90,10 @@ export default function LoginPage() {
 
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background p-4">
+    <div className="relative flex items-center justify-center min-h-screen bg-background p-4">
+       <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <div className="flex justify-center items-center mb-4">
