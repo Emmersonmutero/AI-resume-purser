@@ -73,11 +73,7 @@ export async function handleResumeUpload(
 ): Promise<{data: ProcessedResumeData | null; error: string | null}> {
   const file = formData.get('resume') as File;
   
-  // This is the correct way to get the user in a server action.
-  // The 'auth' object from firebase is correctly initialized to work in this context.
-  const clientAuthUser = auth.currentUser;
-
-  if (!clientAuthUser) {
+  if (!auth.currentUser) {
     return {data: null, error: "You must be logged in to upload a resume."};
   }
 
@@ -155,9 +151,9 @@ export async function handleResumeUpload(
     };
 
     // 4. Save processed data to Firestore for the current user (if they are a job seeker)
-    const userRole = await getUserRole(clientAuthUser.uid);
+    const userRole = await getUserRole(auth.currentUser.uid);
     if(userRole === 'job-seeker') {
-      const userResumesRef = doc(db, 'userResumes', clientAuthUser.uid);
+      const userResumesRef = doc(db, 'userResumes', auth.currentUser.uid);
       await setDoc(userResumesRef, {
           latestResume: {
               fileName: file.name,
@@ -477,3 +473,5 @@ export async function deleteUserAccount(password: string) {
         return { error: "Failed to delete account. An unexpected error occurred." };
     }
 }
+
+    
