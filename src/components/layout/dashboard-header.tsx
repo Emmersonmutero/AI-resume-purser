@@ -107,7 +107,7 @@ export function DashboardHeader() {
                   <CheckCircle className="h-4 w-4 text-primary"/>
                </div>
                 <div className="flex-1">
-                  <p className="font-medium text-sm">Welcome to ResumeFlow!</p>
+                  <p className="font-medium text-sm">Welcome to AI Resume Parser!</p>
                   <p className="text-xs text-muted-foreground">Upload your resume to get started.</p>
                 </div>
              </DropdownMenuItem>

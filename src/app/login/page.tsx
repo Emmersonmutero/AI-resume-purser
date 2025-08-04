@@ -95,7 +95,7 @@ export default function LoginPage() {
           <div className="flex justify-center items-center mb-4">
             <Link href="/" className="flex items-center space-x-2 text-primary">
                 <FileText className="h-8 w-8" />
-                <span className="text-2xl font-bold font-headline">ResumeFlow</span>
+                <span className="text-2xl font-bold font-headline">AI Resume Parser</span>
             </Link>
           </div>
           <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>

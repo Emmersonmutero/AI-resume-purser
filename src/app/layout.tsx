@@ -4,7 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'ResumeFlow',
+  title: 'AI Resume Parser',
   description: 'Unlock Your Career Potential with AI-Powered Resume Analysis',
 };
 

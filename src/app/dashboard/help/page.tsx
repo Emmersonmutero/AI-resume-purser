@@ -9,7 +9,7 @@ export default function HelpPage() {
   const faqs = [
     {
       question: "What file types can I upload for my resume?",
-      answer: "ResumeFlow currently supports PDF (.pdf) and Text (.txt) files. Please ensure your file is under 5MB."
+      answer: "Our AI Resume Parser currently supports PDF (.pdf) and Text (.txt) files. Please ensure your file is under 5MB."
     },
     {
       question: "How does the AI matching work?",

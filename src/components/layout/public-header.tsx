@@ -10,7 +10,7 @@ export function PublicHeader() {
         <div className="mr-4 flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <FileText className="h-6 w-6 text-primary" />
-            <span className="font-bold font-headline">ResumeFlow</span>
+            <span className="font-bold font-headline">AI Resume Parser</span>
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">

@@ -66,7 +66,7 @@ export function DashboardSidebar() {
       <SidebarHeader>
         <Link href="/" className="flex items-center gap-2">
             <FileText className="w-6 h-6 text-primary" />
-            <span className="text-lg font-semibold">ResumeFlow</span>
+            <span className="text-lg font-semibold">AI Resume Parser</span>
         </Link>
       </SidebarHeader>
       <SidebarContent className="p-2">
