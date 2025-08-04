@@ -16,12 +16,14 @@ import {
 import {z} from 'zod';
 import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, Timestamp, deleteDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser, type User as FirebaseUser } from 'firebase/auth';
-import { auth, db } from './firebase';
+import { auth, db, storage } from './firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export type User = {
     uid: string;
     email: string | null;
     displayName: string | null;
+    photoURL?: string | null;
     role: 'job-seeker' | 'recruiter';
 }
 
@@ -397,18 +399,52 @@ export async function signOut() {
   }
 }
 
-export async function updateUserProfile(displayName: string) {
+const profileSchema = z.object({
+    displayName: z.string().min(1, "Display name cannot be empty.").optional(),
+    photoFile: z.instanceof(File).optional(),
+});
+
+
+export async function updateUserProfile(formData: FormData) {
     const user = auth.currentUser;
     if (!user) {
         return { error: "You must be logged in to update your profile." };
     }
-    try {
-        await updateProfile(user, { displayName });
-         // Also update the display name in the user's Firestore document
-        const userDocRef = doc(db, 'users', user.uid);
-        await updateDoc(userDocRef, { displayName });
 
-        return { success: true };
+    const { displayName, photoFile } = Object.fromEntries(formData);
+
+    const result = profileSchema.safeParse({
+        displayName: displayName || undefined,
+        photoFile: photoFile instanceof File && photoFile.size > 0 ? photoFile : undefined
+    });
+    
+    if(!result.success) {
+        return { error: result.error.errors.map(e => e.message).join(', ') };
+    }
+
+    try {
+        let photoURL;
+        if (result.data.photoFile) {
+            const storageRef = ref(storage, `profile-pictures/${user.uid}/${result.data.photoFile.name}`);
+            await uploadBytes(storageRef, result.data.photoFile);
+            photoURL = await getDownloadURL(storageRef);
+        }
+
+        const profileUpdate: { displayName?: string; photoURL?: string } = {};
+        if (result.data.displayName) {
+            profileUpdate.displayName = result.data.displayName;
+        }
+        if (photoURL) {
+            profileUpdate.photoURL = photoURL;
+        }
+
+        if (Object.keys(profileUpdate).length > 0) {
+            await updateProfile(user, profileUpdate);
+            const userDocRef = doc(db, 'users', user.uid);
+            await updateDoc(userDocRef, profileUpdate, { merge: true });
+        }
+
+        return { success: true, photoURL: photoURL || user.photoURL };
     } catch (error: any) {
         return { error: error.message };
     }
