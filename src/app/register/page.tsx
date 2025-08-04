@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -6,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { FileText, Briefcase, User } from 'lucide-react';
+import { FileText, Briefcase, User, Eye, EyeOff } from 'lucide-react';
 import { signUpWithEmail, handleSocialSignIn } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
@@ -40,6 +41,8 @@ export default function RegisterPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [role, setRole] = useState<'job-seeker' | 'recruiter'>('job-seeker');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const redirectToDashboard = (role: string | null) => {
         if (role === 'recruiter') {
@@ -148,11 +151,23 @@ export default function RegisterPage() {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" name="password" type="password" required disabled={isLoading} />
+               <div className="relative">
+                <Input id="password" name="password" type={showPassword ? 'text' : 'password'} required disabled={isLoading} />
+                 <Button type="button" variant="ghost" size="icon" className="absolute inset-y-0 right-0 h-full px-3" onClick={() => setShowPassword(!showPassword)} disabled={isLoading}>
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    <span className="sr-only">Toggle password visibility</span>
+                </Button>
+              </div>
             </div>
              <div className="grid gap-2">
               <Label htmlFor="confirm-password">Confirm Password</Label>
-              <Input id="confirm-password" name="confirm-password" type="password" required disabled={isLoading} />
+               <div className="relative">
+                <Input id="confirm-password" name="confirm-password" type={showConfirmPassword ? 'text' : 'password'} required disabled={isLoading} />
+                 <Button type="button" variant="ghost" size="icon" className="absolute inset-y-0 right-0 h-full px-3" onClick={() => setShowConfirmPassword(!showConfirmPassword)} disabled={isLoading}>
+                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    <span className="sr-only">Toggle confirm password visibility</span>
+                </Button>
+              </div>
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? 'Creating account...' : 'Create account'}

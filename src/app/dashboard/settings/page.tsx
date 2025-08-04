@@ -28,6 +28,8 @@ export default function SettingsPage() {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [deletePassword, setDeletePassword] = useState('');
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
     const [showDeletePassword, setShowDeletePassword] = useState(false);
 
     useEffect(() => {
@@ -104,11 +106,23 @@ export default function SettingsPage() {
                         <CardContent className="space-y-4">
                             <div className="grid gap-2">
                                 <Label htmlFor="current-password">Current Password</Label>
-                                <Input id="current-password" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required disabled={isFormDisabled || isPasswordLoading} />
+                                <div className="relative">
+                                    <Input id="current-password" type={showCurrentPassword ? 'text' : 'password'} value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required disabled={isFormDisabled || isPasswordLoading} />
+                                    <Button type="button" variant="ghost" size="icon" className="absolute inset-y-0 right-0 h-full px-3" onClick={() => setShowCurrentPassword(!showCurrentPassword)} disabled={isFormDisabled || isPasswordLoading}>
+                                        {showCurrentPassword ? <EyeOff className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
+                                        <span className="sr-only">Toggle current password visibility</span>
+                                    </Button>
+                                </div>
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="new-password">New Password</Label>
-                                <Input id="new-password" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required disabled={isFormDisabled || isPasswordLoading} />
+                                <div className="relative">
+                                    <Input id="new-password" type={showNewPassword ? 'text' : 'password'} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required disabled={isFormDisabled || isPasswordLoading} />
+                                    <Button type="button" variant="ghost" size="icon" className="absolute inset-y-0 right-0 h-full px-3" onClick={() => setShowNewPassword(!showNewPassword)} disabled={isFormDisabled || isPasswordLoading}>
+                                        {showNewPassword ? <EyeOff className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
+                                        <span className="sr-only">Toggle new password visibility</span>
+                                    </Button>
+                                </div>
                             </div>
                         </CardContent>
                         <CardFooter className="border-t px-6 py-4">
