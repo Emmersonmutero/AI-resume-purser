@@ -1,3 +1,4 @@
+
 'use server';
 
 import {
@@ -149,16 +150,18 @@ export async function handleResumeUpload(
         analyzedAt: Timestamp.now(),
     };
 
-    // 4. Save processed data to Firestore
-    const userResumesRef = doc(db, 'userResumes', user.uid);
-    await setDoc(userResumesRef, {
-        latestResume: {
-            fileName: file.name,
-            processedData: processedData,
-            uploadedAt: Timestamp.now(),
-        }
-    }, { merge: true });
-
+    // 4. Save processed data to Firestore for the current user
+    const userRole = await getUserRole(user.uid);
+    if(userRole === 'job-seeker') {
+      const userResumesRef = doc(db, 'userResumes', user.uid);
+      await setDoc(userResumesRef, {
+          latestResume: {
+              fileName: file.name,
+              processedData: processedData,
+              uploadedAt: Timestamp.now(),
+          }
+      }, { merge: true });
+    }
 
     return {data: processedData, error: null};
   } catch (error) {
@@ -192,6 +195,25 @@ export async function getUserResumes(): Promise<UserResume | null> {
         return null;
     }
 }
+
+export async function deleteUserResume() {
+    const user = auth.currentUser;
+    if (!user) {
+        return { error: "User not found." };
+    }
+    try {
+        const userResumeRef = doc(db, 'userResumes', user.uid);
+        await updateDoc(userResumeRef, {
+            latestResume: deleteDoc
+        });
+        await deleteDoc(userResumeRef);
+        return { success: true };
+    } catch (error) {
+        console.error("Error deleting resume:", error);
+        return { error: "Failed to delete resume." };
+    }
+}
+
 
 const jobPostingSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters long."),

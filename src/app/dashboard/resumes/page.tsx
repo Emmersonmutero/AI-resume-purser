@@ -8,7 +8,7 @@ import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileText, UploadCloud, RefreshCw, Trash2, Bot } from 'lucide-react';
-import { getUserResumes, type UserResume, handleResumeUpload } from '@/lib/actions';
+import { getUserResumes, type UserResume, deleteUserResume } from '@/lib/actions';
 import { ResumeDisplay } from '@/components/dashboard/resume-display';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
@@ -29,7 +29,7 @@ import {
 export default function ResumesPage() {
     const [resume, setResume] = useState<UserResume | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const router = useRouter();
     const { toast } = useToast();
 
@@ -51,6 +51,25 @@ export default function ResumesPage() {
           title: "Ready to Analyze",
           description: "Upload a new resume or re-upload your existing one to start a new analysis.",
         });
+    }
+
+    const handleDelete = async () => {
+        setIsDeleting(true);
+        const result = await deleteUserResume();
+         if (result.error) {
+            toast({
+                title: "Deletion Failed",
+                description: result.error,
+                variant: "destructive",
+            });
+        } else {
+            toast({
+                title: "Resume Deleted",
+                description: "Your resume has been successfully deleted.",
+            });
+            setResume(null); // Clear from state
+        }
+        setIsDeleting(false);
     }
 
   if (isLoading) {
@@ -114,6 +133,27 @@ export default function ResumesPage() {
                                         <Button variant="outline" onClick={handleReanalyze}>
                                             <RefreshCw className="mr-2 h-4 w-4" /> Re-analyze
                                         </Button>
+                                         <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="destructive">
+                                                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    This will permanently delete your resume and its analysis. This action cannot be undone.
+                                                </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                                                    {isDeleting ? "Deleting..." : "Confirm"}
+                                                </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                 </CardHeader>
                             </Card>

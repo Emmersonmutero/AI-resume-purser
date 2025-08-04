@@ -8,15 +8,18 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { createJobPosting, getApplicantsForRecruiter } from '@/lib/actions';
+import { createJobPosting, getApplicantsForRecruiter, handleResumeUpload, type ProcessedResumeData } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
-import { Briefcase, PlusCircle, Users } from 'lucide-react';
+import { Briefcase, PlusCircle, Users, Terminal, Bot } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import type { Application } from '@/lib/actions';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Badge } from '../ui/badge';
 import { formatDistanceToNow } from 'date-fns';
-
+import { ResumeUpload } from './resume-upload';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { JobMatches } from './job-matches';
+import { ResumeDisplay } from './resume-display';
 
 export default function RecruiterDashboardClient() {
   const { toast } = useToast();
@@ -24,6 +27,12 @@ export default function RecruiterDashboardClient() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [applicants, setApplicants] = useState<Application[]>([]);
   const [isLoadingApplicants, setIsLoadingApplicants] = useState(true);
+
+  // State for resume parsing
+  const [processedData, setProcessedData] = useState<ProcessedResumeData | null>(null);
+  const [isParsing, setIsParsing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
 
   const fetchApplicants = async () => {
       if (auth.currentUser) {
@@ -66,6 +75,24 @@ export default function RecruiterDashboardClient() {
       });
     }
     setIsSubmitting(false);
+  };
+
+  const onResumeUpload = async (formData: FormData) => {
+    setIsParsing(true);
+    setError(null);
+    setProcessedData(null);
+    try {
+      const result = await handleResumeUpload(formData);
+      if (result.error) {
+        setError(result.error);
+      } else if (result.data) {
+        setProcessedData(result.data);
+      }
+    } catch (e) {
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsParsing(false);
+    }
   };
   
     const getBadgeVariant = (score: number) => {
@@ -125,21 +152,61 @@ export default function RecruiterDashboardClient() {
                 </DialogContent>
             </Dialog>
         </div>
-        
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-             <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Applicants</CardTitle>
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{isLoadingApplicants ? '...' : applicants.length}</div>
-                    <p className="text-xs text-muted-foreground">New applicants this month</p>
-                </CardContent>
-            </Card>
-            {/* Add more analytics cards here */}
-        </div>
 
+        <Card>
+            <CardHeader>
+                <CardTitle>AI Resume Parser</CardTitle>
+                <CardDescription>Upload a candidate's resume to analyze it and match it against your open job positions.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                 {error && (
+                    <Alert variant="destructive">
+                    <Terminal className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                )}
+                <ResumeUpload onUpload={onResumeUpload} isLoading={isParsing} />
+                 {isParsing && (
+                    <Card className="h-full min-h-[400px] flex items-center justify-center">
+                        <CardContent className="text-center text-muted-foreground p-8">
+                            <div className="flex items-center space-x-2">
+                                <svg className="animate-spin h-5 w-5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <p className="font-headline text-lg">Analyzing resume...</p>
+                            </div>
+                            <p className="text-sm mt-2">This may take a few moments. Please wait.</p>
+                        </CardContent>
+                    </Card>
+                )}
+                {!processedData && !isParsing && !error && (
+                    <Card className="h-full flex items-center justify-center min-h-[200px] border-dashed">
+                        <CardContent className="text-center text-muted-foreground p-8">
+                            <Bot size={48} className="mx-auto mb-4 text-primary/50" />
+                            <p className="font-headline text-lg">Analysis will appear here.</p>
+                            <p className="text-sm">Upload a PDF or TXT resume to get started.</p>
+                        </CardContent>
+                    </Card>
+                )}
+                {processedData && (
+                    <div className="grid lg:grid-cols-2 gap-4 pt-4">
+                       <div>
+                           <JobMatches 
+                                matches={processedData.matches} 
+                                jobs={processedData.jobs}
+                                resumeData={processedData.resumeData}
+                            />
+                       </div>
+                       <div>
+                           <ResumeDisplay resumeData={processedData.resumeData} summary={processedData.summary} />
+                       </div>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+        
         <Card>
             <CardHeader>
                 <CardTitle>Recent Applicants</CardTitle>
