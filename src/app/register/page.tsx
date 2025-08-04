@@ -100,7 +100,7 @@ export default function RegisterPage() {
     };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-secondary/50 p-4">
+    <div className="flex items-center justify-center min-h-screen bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
             <div className="flex justify-center items-center mb-4">
@@ -178,7 +178,7 @@ export default function RegisterPage() {
                     <span className="w-full border-t" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                    <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-2">

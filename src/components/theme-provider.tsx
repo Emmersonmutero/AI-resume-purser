@@ -1,6 +1,8 @@
+
 "use client"
 
 import * as React from "react"
+import { useServerInsertedHTML } from "next/navigation"
 
 type Theme = "dark" | "light" | "system"
 
@@ -30,35 +32,48 @@ export function ThemeProvider({
   enableSystem = true,
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = React.useState<Theme>(
-    () => (typeof window !== 'undefined' ? (localStorage.getItem(storageKey) as Theme) || defaultTheme : defaultTheme)
+  const [theme, setTheme] = React.useState<Theme>(() => {
+      if (typeof window !== 'undefined') {
+        return (localStorage.getItem(storageKey) as Theme) || defaultTheme
+      }
+      return defaultTheme
+    }
   )
+
+  useServerInsertedHTML(() => {
+    return (
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              const theme = localStorage.getItem('${storageKey}');
+              const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+              document.documentElement.classList.add(theme === 'system' ? systemTheme : theme || '${defaultTheme}');
+            })();
+          `,
+        }}
+      />
+    );
+  });
+
 
   React.useEffect(() => {
     const root = window.document.documentElement
-
     root.classList.remove("light", "dark")
 
-    if (theme === "system" && enableSystem) {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
-        ? "dark"
-        : "light"
+    const newTheme = theme === "system" && enableSystem ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : theme;
+    
+    root.classList.add(newTheme)
 
-      root.classList.add(systemTheme)
-      return
-    }
-
-    root.classList.add(theme)
   }, [theme, enableSystem])
 
   const value = {
     theme,
-    setTheme: (theme: Theme) => {
+    setTheme: (newTheme: Theme) => {
       if(typeof window !== 'undefined') {
-        localStorage.setItem(storageKey, theme)
+        localStorage.setItem(storageKey, newTheme)
       }
-      setTheme(theme)
+      setTheme(newTheme)
     },
   }
 
