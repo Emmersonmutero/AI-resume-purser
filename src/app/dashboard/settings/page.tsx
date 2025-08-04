@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { updateUserPassword, deleteUserAccount, User } from "@/lib/actions";
+import { updateUserPassword, deleteUserAccount } from "@/lib/actions";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Eye, EyeOff } from "lucide-react";
 import { auth } from "@/lib/auth";
@@ -36,9 +36,12 @@ export default function SettingsPage() {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
             setIsLoading(false);
+            if (!currentUser) {
+                router.replace('/login');
+            }
         });
         return () => unsubscribe();
-    }, []);
+    }, [router]);
 
     const handleChangePassword = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();

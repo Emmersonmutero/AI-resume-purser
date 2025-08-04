@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { updateUserProfile, getUserRole, type User } from "@/lib/actions";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { onAuthStateChanged } from "firebase/auth";
 
 export default function ProfilePage() {
   const { toast } = useToast();
@@ -24,7 +25,7 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (currentUser: AuthUser | null) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser: AuthUser | null) => {
       if (currentUser) {
         const role = await getUserRole(currentUser.uid) as User['role'];
         setUser({

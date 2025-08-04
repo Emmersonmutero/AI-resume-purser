@@ -71,12 +71,13 @@ async function fileToDataUri(file: File): Promise<string> {
 export async function handleResumeUpload(
   formData: FormData
 ): Promise<{data: ProcessedResumeData | null; error: string | null}> {
-  const file = formData.get('resume') as File;
-  
-  if (!auth.currentUser) {
+  const user = auth.currentUser;
+  if (!user) {
     return {data: null, error: "You must be logged in to upload a resume."};
   }
-
+  
+  const file = formData.get('resume') as File;
+  
   const fileSchema = z.object({
     name: z.string(),
     size: z
@@ -151,9 +152,9 @@ export async function handleResumeUpload(
     };
 
     // 4. Save processed data to Firestore for the current user (if they are a job seeker)
-    const userRole = await getUserRole(auth.currentUser.uid);
+    const userRole = await getUserRole(user.uid);
     if(userRole === 'job-seeker') {
-      const userResumesRef = doc(db, 'userResumes', auth.currentUser.uid);
+      const userResumesRef = doc(db, 'userResumes', user.uid);
       await setDoc(userResumesRef, {
           latestResume: {
               fileName: file.name,
@@ -458,7 +459,10 @@ export async function deleteUserAccount(password: string) {
         // Delete user's document from 'users' collection first
         await deleteDoc(doc(db, "users", user.uid));
         // Delete user's resume document
-        await deleteDoc(doc(db, "userResumes", user.uid));
+        const userResumeRef = doc(db, 'userResumes', user.uid);
+        if ((await getDoc(userResumeRef)).exists()) {
+            await deleteDoc(userResumeRef);
+        }
         // Then delete the user from auth
         await deleteUser(user);
         return { success: true };
