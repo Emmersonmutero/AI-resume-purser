@@ -152,8 +152,8 @@ export default function ProfilePage() {
                     <div className="flex items-center gap-4">
                         <div className="relative">
                             <Avatar className="h-24 w-24 cursor-pointer" onClick={handleAvatarClick}>
-                                <AvatarImage src={photoURL ?? `https://placehold.co/96x96.png`} alt={user?.displayName ?? 'User'} />
-                                <AvatarFallback>{user?.displayName?.[0].toUpperCase() ?? 'U'}</AvatarFallback>
+                                {photoURL && <AvatarImage src={photoURL} alt={user?.displayName ?? 'User'} />}
+                                <AvatarFallback>{user?.displayName?.[0].toUpperCase() ?? user?.email?.[0].toUpperCase() ?? 'U'}</AvatarFallback>
                             </Avatar>
                              <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-full opacity-0 hover:opacity-100 transition-opacity cursor-pointer" onClick={handleAvatarClick}>
                                 <Camera className="h-6 w-6 text-white" />
