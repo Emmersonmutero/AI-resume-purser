@@ -1,3 +1,4 @@
+
 import { SidebarProvider } from "@/components/ui/sidebar";
 import DashboardClient from "@/components/dashboard/dashboard-client";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
