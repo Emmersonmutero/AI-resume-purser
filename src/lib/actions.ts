@@ -102,12 +102,6 @@ export async function handleResumeUpload(
     const jobs: JobPosting[] = jobsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as JobPosting));
     const jobPostingsText = jobs.map(job => `${job.title} at ${job.company}: ${job.description}`);
 
-    if (jobs.length === 0) {
-        // For recruiters, it might be better to let them parse even if they have no jobs yet.
-        // Let's adjust this logic.
-    }
-
-
     const dataUri = await fileToDataUri(file);
 
     // 1. Extract structured data from resume
