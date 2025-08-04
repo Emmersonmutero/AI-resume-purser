@@ -17,6 +17,13 @@ import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, g
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser, type User as FirebaseUser } from 'firebase/auth';
 import { auth, db } from './firebase';
 
+export type User = {
+    uid: string;
+    email: string | null;
+    displayName: string | null;
+    role: 'job-seeker' | 'recruiter';
+}
+
 export type JobPosting = {
   id: string;
   title: string;

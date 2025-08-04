@@ -6,32 +6,44 @@ import { DashboardHeader } from "@/components/layout/dashboard-header";
 import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
 import { useEffect, useState } from "react";
 import { auth } from "@/lib/auth";
-import type { User } from "firebase/auth";
+import type { User as AuthUser } from "firebase/auth";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { updateUserProfile } from "@/lib/actions";
+import { updateUserProfile, getUserRole, type User } from "@/lib/actions";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProfilePage() {
   const { toast } = useToast();
   const [user, setUser] = useState<User | null>(null);
   const [displayName, setDisplayName] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      setUser(currentUser);
+    const unsubscribe = auth.onAuthStateChanged(async (currentUser: AuthUser | null) => {
       if (currentUser) {
+        const role = await getUserRole(currentUser.uid) as User['role'];
+        setUser({
+            uid: currentUser.uid,
+            email: currentUser.email,
+            displayName: currentUser.displayName,
+            role: role
+        });
         setDisplayName(currentUser.displayName || '');
+      } else {
+        setUser(null);
       }
+      setIsLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIsLoading(true);
+    setIsSaving(true);
     const result = await updateUserProfile(displayName);
     if (result.error) {
       toast({
@@ -44,13 +56,51 @@ export default function ProfilePage() {
         title: "Profile Updated",
         description: "Your display name has been successfully updated.",
       });
-      // Force a refresh of the user token to get the updated profile
-      await user?.reload();
-      // Manually trigger a state update to re-render with new name if needed
-      setUser({...user!});
+      // Manually update the user state to reflect the change immediately
+       if(user) {
+         setUser({...user, displayName: displayName});
+       }
     }
-    setIsLoading(false);
+    setIsSaving(false);
   };
+  
+    if (isLoading) {
+        return (
+             <SidebarProvider>
+                <div className="flex min-h-screen bg-background">
+                    <DashboardSidebar />
+                    <main className="flex-1">
+                    <DashboardHeader />
+                    <div className="p-4 sm:p-6 lg:p-8">
+                         <Card>
+                            <CardHeader>
+                               <Skeleton className="h-8 w-1/4" />
+                               <Skeleton className="h-4 w-1/2" />
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-2">
+                                    <Skeleton className="h-4 w-16" />
+                                    <Skeleton className="h-10 w-full" />
+                                </div>
+                                <div className="space-y-2">
+                                     <Skeleton className="h-4 w-16" />
+                                    <Skeleton className="h-10 w-full" />
+                                </div>
+                                 <div className="space-y-2">
+                                     <Skeleton className="h-4 w-16" />
+                                    <Skeleton className="h-10 w-full" />
+                                </div>
+                            </CardContent>
+                             <CardFooter>
+                                <Skeleton className="h-10 w-24" />
+                            </CardFooter>
+                        </Card>
+                    </div>
+                    </main>
+                </div>
+            </SidebarProvider>
+        )
+    }
 
   return (
      <SidebarProvider>
@@ -72,7 +122,7 @@ export default function ProfilePage() {
                       id="displayName" 
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
-                      disabled={isLoading}
+                      disabled={isSaving}
                     />
                   </div>
                   <div className="grid gap-2">
@@ -85,10 +135,20 @@ export default function ProfilePage() {
                     />
                      <p className="text-xs text-muted-foreground">Your email address cannot be changed.</p>
                   </div>
+                   <div className="grid gap-2">
+                    <Label htmlFor="role">Role</Label>
+                     <Input 
+                      id="role" 
+                      value={user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : ''}
+                      disabled 
+                      readOnly
+                      className="capitalize"
+                    />
+                  </div>
                 </CardContent>
                 <CardFooter className="border-t px-6 py-4">
-                  <Button type="submit" disabled={isLoading}>
-                    {isLoading ? "Saving..." : "Save Changes"}
+                  <Button type="submit" disabled={isSaving}>
+                    {isSaving ? "Saving..." : "Save Changes"}
                   </Button>
                 </CardFooter>
               </Card>
