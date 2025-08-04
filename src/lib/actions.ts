@@ -473,5 +473,3 @@ export async function deleteUserAccount(password: string) {
         return { error: "Failed to delete account. An unexpected error occurred." };
     }
 }
-
-    
