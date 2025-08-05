@@ -67,6 +67,7 @@ export function DashboardSidebar() {
   const commonItems = [
     { href: '/dashboard', label: 'Dashboard Overview', icon: <LayoutGrid /> },
     { href: '/dashboard/profile', label: 'Profile', icon: <User /> },
+    { href: '/dashboard/ai-assistant', label: 'AI Assistant', icon: <Bot /> },
     { href: '/dashboard/analytics', label: 'Analytics', icon: <FileText /> },
   ];
   const hrItems = [

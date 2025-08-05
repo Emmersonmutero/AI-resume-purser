@@ -3,6 +3,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import DashboardClient from "@/components/dashboard/dashboard-client";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
 import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
+import { AIAssistantWidget } from "@/components/ai-assistant/ai-assistant-widget";
 
 export default function JobSeekerDashboardPage() {
   return (
@@ -15,6 +16,7 @@ export default function JobSeekerDashboardPage() {
             <DashboardClient />
           </div>
         </main>
+        <AIAssistantWidget />
       </div>
     </SidebarProvider>
   );
