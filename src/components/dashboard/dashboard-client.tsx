@@ -70,20 +70,22 @@ export default function DashboardClient() {
   if (initialLoading) {
     return (
         <div className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <Skeleton className="h-24" />
-                <Skeleton className="h-24" />
-                <Skeleton className="h-24" />
-                <Skeleton className="h-24" />
+            <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
+                <Skeleton className="h-20 sm:h-24" />
+                <Skeleton className="h-20 sm:h-24" />
+                <Skeleton className="h-20 sm:h-24" />
+                <Skeleton className="h-20 sm:h-24" />
             </div>
-             <div className="grid gap-4 md:gap-8 lg:grid-cols-5">
-                <div className="lg:col-span-3 grid gap-4 md:gap-8 sm:grid-cols-2">
-                    <Skeleton className="sm:col-span-2 h-72" />
-                    <Skeleton className="h-72" />
-                    <Skeleton className="h-72" />
+             <div className="grid gap-4 md:gap-6 lg:gap-8 lg:grid-cols-5">
+                <div className="lg:col-span-3 grid gap-4 md:gap-6 lg:gap-8">
+                    <Skeleton className="h-64 sm:h-72" />
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <Skeleton className="h-64 sm:h-72" />
+                      <Skeleton className="h-64 sm:h-72" />
+                    </div>
                 </div>
                 <div className="lg:col-span-2">
-                    <Skeleton className="h-[400px]" />
+                    <Skeleton className="h-[350px] sm:h-[400px]" />
                 </div>
             </div>
         </div>
@@ -128,57 +130,57 @@ export default function DashboardClient() {
       
       {processedData && (
         <>
-            <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold font-headline">Your Dashboard</h1>
-                <Button onClick={() => router.push('/dashboard/resumes')}>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <h1 className="text-xl sm:text-2xl font-bold font-headline">Your Dashboard</h1>
+                <Button onClick={() => router.push('/dashboard/resumes')} size="sm" className="self-start sm:self-auto">
                     Manage My Resumes
                 </Button>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <Card>
-                    <CardContent className="p-4 flex items-center gap-4">
-                        <div className="bg-primary/10 p-3 rounded-full">
-                        <Briefcase className="w-6 h-6 text-primary" />
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3">
+                <Card className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                        <div className="bg-primary/10 p-2 sm:p-3 rounded-full flex-shrink-0">
+                        <Briefcase className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                         </div>
-                        <div>
-                        <p className="text-2xl font-bold">{stats.totalJobs}</p>
+                        <div className="min-w-0">
+                        <p className="text-xl sm:text-2xl font-bold">{stats.totalJobs}</p>
                         <p className="text-sm text-muted-foreground">Total Jobs Matched</p>
                         </div>
                     </CardContent>
                 </Card>
-                <Card>
-                    <CardContent className="p-4 flex items-center gap-4">
-                        <div className="bg-primary/10 p-3 rounded-full">
-                        <Users className="w-6 h-6 text-primary" />
+                <Card className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                        <div className="bg-primary/10 p-2 sm:p-3 rounded-full flex-shrink-0">
+                        <Users className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                         </div>
-                        <div>
-                        <p className="text-2xl font-bold">{stats.goodMatches}</p>
+                        <div className="min-w-0">
+                        <p className="text-xl sm:text-2xl font-bold">{stats.goodMatches}</p>
                         <p className="text-sm text-muted-foreground">Good Matches (&gt;70%)</p>
                         </div>
                     </CardContent>
                 </Card>
-                <Card>
-                    <CardContent className="p-4 flex items-center gap-4">
-                        <div className="bg-primary/10 p-3 rounded-full">
-                        <CheckCircle className="w-6 h-6 text-primary" />
+                <Card className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                        <div className="bg-primary/10 p-2 sm:p-3 rounded-full flex-shrink-0">
+                        <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                         </div>
-                        <div>
-                        <p className="text-2xl font-bold">{stats.greatMatches}</p>
+                        <div className="min-w-0">
+                        <p className="text-xl sm:text-2xl font-bold">{stats.greatMatches}</p>
                         <p className="text-sm text-muted-foreground">Great Matches (&gt;85%)</p>
                         </div>
                     </CardContent>
                 </Card>
             </div>
 
-            <div className="grid gap-4 md:gap-8 lg:grid-cols-5">
-                <div className="lg:col-span-3 grid gap-4 md:gap-8 sm:grid-cols-2">
-                    <div className="sm:col-span-2">
-                        <JobMatchesSummaryChart matches={processedData?.matches} isLoading={isLoading} />
+            <div className="grid gap-4 md:gap-6 lg:gap-8 xl:grid-cols-5">
+                <div className="xl:col-span-3 space-y-4 md:space-y-6 lg:space-y-8">
+                    <JobMatchesSummaryChart matches={processedData?.matches} isLoading={isLoading} />
+                    <div className="grid gap-4 md:gap-6 sm:grid-cols-2">
+                      <MatchScoreChart matches={processedData?.matches} isLoading={isLoading} />
+                      <JobDistributionChart matches={processedData?.matches} isLoading={isLoading} />
                     </div>
-                    <MatchScoreChart matches={processedData?.matches} isLoading={isLoading} />
-                    <JobDistributionChart matches={processedData?.matches} isLoading={isLoading} />
                 </div>
-                <div className="lg:col-span-2">
+                <div className="xl:col-span-2">
                     <JobMatches 
                         matches={processedData.matches} 
                         jobs={processedData.jobs}

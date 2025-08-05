@@ -79,14 +79,14 @@ export default function ResumesPage() {
                 <DashboardSidebar />
                 <main className="flex-1">
                 <DashboardHeader />
-                <div className="p-4 sm:p-6 lg:p-8">
+                <div className="responsive-padding">
                     <Card>
                         <CardHeader>
-                            <Skeleton className="h-8 w-1/2" />
-                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-6 sm:h-8 w-1/2" />
+                            <Skeleton className="h-3 sm:h-4 w-3/4" />
                         </CardHeader>
                         <CardContent>
-                             <Skeleton className="h-40 w-full" />
+                             <Skeleton className="h-32 sm:h-40 w-full" />
                         </CardContent>
                     </Card>
                 </div>
@@ -102,7 +102,7 @@ export default function ResumesPage() {
         <DashboardSidebar />
         <main className="flex-1">
           <DashboardHeader />
-          <div className="p-4 sm:p-6 lg:p-8">
+                      <div className="responsive-padding">
             <Card>
                 <CardHeader>
                     <CardTitle>My Resumes</CardTitle>

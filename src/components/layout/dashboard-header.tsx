@@ -61,65 +61,109 @@ export function DashboardHeader() {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
-        <SidebarTrigger className="lg:hidden mr-2" />
-        <h1 className="font-bold text-xl flex-1">Dashboard</h1>
-        <div className="flex items-center gap-4">
-          {/* Search */}
-          <Button variant="ghost" size="icon">
+      <div className="flex h-16 items-center justify-between px-4 lg:px-6">
+        <div className="flex items-center gap-2">
+          <SidebarTrigger className="lg:hidden" />
+          <h1 className="font-bold text-lg sm:text-xl">Dashboard</h1>
+        </div>
+        
+        <div className="flex items-center gap-2 sm:gap-4">
+          {/* Search - Hidden on mobile */}
+          <Button variant="ghost" size="icon" className="hidden sm:flex">
             <Search className="h-5 w-5" />
           </Button>
+          
           {/* Notifications */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="relative">
                 <Bell className="h-5 w-5" />
                 {notifications.length > 0 && (
-                  <Badge className="absolute top-0 right-0 text-xs bg-red-500 text-white">{notifications.length}</Badge>
+                  <Badge className="absolute -top-1 -right-1 h-5 w-5 text-xs bg-red-500 text-white p-0 flex items-center justify-center rounded-full">
+                    {notifications.length > 9 ? '9+' : notifications.length}
+                  </Badge>
                 )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="w-[280px] sm:w-[320px]">
               <DropdownMenuLabel>Notifications</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {notifications.length === 0 ? (
-                <DropdownMenuItem>No new notifications</DropdownMenuItem>
+                <DropdownMenuItem className="text-center text-muted-foreground">
+                  No new notifications
+                </DropdownMenuItem>
               ) : (
-                notifications.map((notif, idx) => (
-                  <DropdownMenuItem key={idx}>
-                    <span>{notif.status ?? 'Update'} - {notif.updatedAt ? formatDistanceToNow(new Date(notif.updatedAt)) : ''} ago</span>
+                notifications.slice(0, 5).map((notif, idx) => (
+                  <DropdownMenuItem key={idx} className="flex flex-col items-start p-3">
+                    <span className="font-medium text-sm">{notif.status ?? 'Update'}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {notif.updatedAt ? formatDistanceToNow(new Date(notif.updatedAt)) : ''} ago
+                    </span>
                   </DropdownMenuItem>
                 ))
               )}
+              {notifications.length > 5 && (
+                <DropdownMenuItem className="text-center text-primary">
+                  View all notifications
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
+          
           {/* Avatar Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Avatar>
-                <AvatarImage src={user?.photoURL || ''} />
-                <AvatarFallback>{user?.displayName?.[0] ?? 'U'}</AvatarFallback>
-              </Avatar>
+              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={user?.photoURL || ''} />
+                  <AvatarFallback className="text-xs">
+                    {user?.displayName?.[0] ?? 'U'}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{user?.displayName || 'User'}</DropdownMenuLabel>
+            <DropdownMenuContent align="end" className="w-[200px]">
+              <DropdownMenuLabel className="text-sm">
+                <div className="flex flex-col space-y-1">
+                  <p className="font-medium">{user?.displayName || 'User'}</p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {user?.email}
+                  </p>
+                </div>
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/profile">View Profile</Link>
+                <Link href="/dashboard/profile" className="text-sm">
+                  <User className="mr-2 h-4 w-4" />
+                  View Profile
+                </Link>
               </DropdownMenuItem>
               {role === 'admin' && (
                 <DropdownMenuItem asChild>
-                  <Link href="/dashboard/admin">Switch Role</Link>
+                  <Link href="/dashboard/admin" className="text-sm">
+                    <Settings className="mr-2 h-4 w-4" />
+                    Admin Panel
+                  </Link>
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/settings">Settings</Link>
+                <Link href="/dashboard/settings" className="text-sm">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout} className="text-sm text-red-600">
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          {/* Theme Toggle */}
-          <ThemeToggle />
+          
+          {/* Theme Toggle - Hidden on small screens */}
+          <div className="hidden sm:block">
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </header>
