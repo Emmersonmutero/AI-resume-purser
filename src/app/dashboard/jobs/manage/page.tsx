@@ -1,22 +1,19 @@
-
 import { SidebarProvider } from "@/components/ui/sidebar";
-import DashboardClient from "@/components/dashboard/dashboard-client";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
 import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
-import { AIAssistantWidget } from "@/components/ai-assistant/ai-assistant-widget";
+import { JobManagementClient } from "@/components/jobs/job-management-client";
 
-export default function JobSeekerDashboardPage() {
+export default function JobManagementPage() {
   return (
     <SidebarProvider>
       <div className="flex min-h-screen bg-background">
         <DashboardSidebar />
         <main className="flex-1">
           <DashboardHeader />
-          <div className="p-4 sm:p-6 lg:p-8">
-            <DashboardClient />
+          <div className="responsive-padding">
+            <JobManagementClient />
           </div>
         </main>
-        <AIAssistantWidget />
       </div>
     </SidebarProvider>
   );

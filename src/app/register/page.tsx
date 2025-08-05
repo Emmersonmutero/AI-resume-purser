@@ -105,16 +105,16 @@ export default function RegisterPage() {
        <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader className="text-center space-y-2 pb-6">
             <div className="flex justify-center items-center mb-4">
                 <Link href="/" className="flex items-center space-x-2 text-primary">
-                    <FileText className="h-8 w-8" />
-                    <span className="text-2xl font-bold font-headline">AI Resume Parser</span>
+                    <FileText className="h-6 w-6 sm:h-8 sm:w-8" />
+                    <span className="text-lg sm:text-2xl font-bold font-headline">AI Resume Parser</span>
                 </Link>
             </div>
-          <CardTitle className="text-2xl font-headline">Create an Account</CardTitle>
-          <CardDescription>Select your role and enter your details to get started.</CardDescription>
+          <CardTitle className="text-xl sm:text-2xl font-headline">Create an Account</CardTitle>
+          <CardDescription className="text-sm sm:text-base">Select your role and enter your details to get started.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleEmailRegister} className="grid gap-4">

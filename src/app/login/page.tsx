@@ -94,38 +94,60 @@ export default function LoginPage() {
        <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
-      <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
+      <Card className="w-full max-w-sm mx-auto">
+        <CardHeader className="text-center space-y-2 pb-6">
           <div className="flex justify-center items-center mb-4">
             <Link href="/" className="flex items-center space-x-2 text-primary">
-                <FileText className="h-8 w-8" />
-                <span className="text-2xl font-bold font-headline">AI Resume Parser</span>
+                <FileText className="h-6 w-6 sm:h-8 sm:w-8" />
+                <span className="text-lg sm:text-2xl font-bold font-headline">AI Resume Parser</span>
             </Link>
           </div>
-          <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
-          <CardDescription>Enter your credentials to access your account.</CardDescription>
+          <CardTitle className="text-xl sm:text-2xl font-headline">Welcome Back</CardTitle>
+          <CardDescription className="text-sm sm:text-base">Enter your credentials to access your account.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           <form onSubmit={handleEmailLogin} className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" placeholder="m@example.com" required disabled={isLoading} />
+              <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+              <Input 
+                id="email" 
+                name="email" 
+                type="email" 
+                placeholder="m@example.com" 
+                required 
+                disabled={isLoading}
+                className="h-10"
+              />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-sm font-medium">Password</Label>
               <div className="relative">
-                <Input id="password" name="password" type={showPassword ? 'text' : 'password'} required disabled={isLoading} />
-                <Button type="button" variant="ghost" size="icon" className="absolute inset-y-0 right-0 h-full px-3" onClick={() => setShowPassword(!showPassword)} disabled={isLoading}>
+                <Input 
+                  id="password" 
+                  name="password" 
+                  type={showPassword ? 'text' : 'password'} 
+                  required 
+                  disabled={isLoading}
+                  className="h-10 pr-10"
+                />
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm" 
+                  className="absolute inset-y-0 right-0 h-full w-10 px-3 hover:bg-transparent" 
+                  onClick={() => setShowPassword(!showPassword)} 
+                  disabled={isLoading}
+                >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     <span className="sr-only">Toggle password visibility</span>
                 </Button>
               </div>
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full h-10" disabled={isLoading}>
               {isLoading ? 'Logging in...' : 'Login'}
             </Button>
           </form>
-            <div className="relative my-4">
+            <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t" />
                 </div>
@@ -133,19 +155,31 @@ export default function LoginPage() {
                     <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
                 </div>
             </div>
-            <div className="grid grid-cols-2 gap-2">
-                <Button variant="outline" className="w-full" onClick={() => handleSocialLogin('google')} disabled={isLoading}>
+            <div className="grid grid-cols-2 gap-3">
+                <Button 
+                  variant="outline" 
+                  className="w-full h-10 text-sm" 
+                  onClick={() => handleSocialLogin('google')} 
+                  disabled={isLoading}
+                >
                     <GoogleIcon />
-                    Google
+                    <span className="hidden xs:inline">Google</span>
+                    <span className="xs:hidden">G</span>
                 </Button>
-                <Button variant="outline" className="w-full" onClick={() => handleSocialLogin('facebook')} disabled={isLoading}>
+                <Button 
+                  variant="outline" 
+                  className="w-full h-10 text-sm" 
+                  onClick={() => handleSocialLogin('facebook')} 
+                  disabled={isLoading}
+                >
                     <FacebookIcon />
-                    Facebook
+                    <span className="hidden xs:inline">Facebook</span>
+                    <span className="xs:hidden">F</span>
                 </Button>
             </div>
-          <div className="mt-4 text-center text-sm">
+          <div className="mt-6 text-center text-sm">
             Don&apos;t have an account?{' '}
-            <Link href="/register" className="underline">
+            <Link href="/register" className="font-medium text-primary underline underline-offset-4 hover:text-primary/80">
               Register
             </Link>
           </div>

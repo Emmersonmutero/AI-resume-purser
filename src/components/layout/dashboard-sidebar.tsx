@@ -18,6 +18,17 @@ import {
   LogOut,
   Bot,
   User,
+  Search,
+  Target,
+  Send,
+  Building,
+  Users,
+  BarChart3,
+  TrendingUp,
+  UserCheck,
+  FileBarChart,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
 
 import { Button } from '../ui/button';
@@ -36,6 +47,7 @@ export function DashboardSidebar() {
   const router = useRouter();
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['main']));
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user: FirebaseUser | null) => {
@@ -62,65 +74,146 @@ export function DashboardSidebar() {
     }
   };
 
+  const toggleSection = (sectionId: string) => {
+    const newExpanded = new Set(expandedSections);
+    if (newExpanded.has(sectionId)) {
+      newExpanded.delete(sectionId);
+    } else {
+      newExpanded.add(sectionId);
+    }
+    setExpandedSections(newExpanded);
+  };
+
   if (isLoading) return <div>Loading...</div>;
 
-  const commonItems = [
-    { href: '/dashboard', label: 'Dashboard Overview', icon: <LayoutGrid /> },
-    { href: '/dashboard/profile', label: 'Profile', icon: <User /> },
-    { href: '/dashboard/analytics', label: 'Analytics', icon: <FileText /> },
-  ];
-  const hrItems = [
-    { href: '/dashboard/resumes', label: 'Resumes', icon: <File /> },
-    { href: '/dashboard/jobs', label: 'Job Descriptions', icon: <Briefcase /> },
-    { href: '/dashboard/match', label: 'Match Engine', icon: <Bot /> },
-    { href: '/dashboard/gmail-import', label: 'Gmail Fetcher', icon: <FileText /> },
-    { href: '/dashboard/reports', label: 'Reports', icon: <FileText /> },
-  ];
-  const jobSeekerItems = [
-    { href: '/dashboard/upload', label: 'Upload Resume', icon: <File /> },
-    { href: '/dashboard/matches', label: 'Matched Jobs', icon: <Briefcase /> },
-    { href: '/dashboard/applications', label: 'Application Tracker', icon: <FileText /> },
-  ];
-  const adminItems = [
-    { href: '/dashboard/admin', label: 'Admin Panel', icon: <LifeBuoy /> },
-  ];
+  const navigationStructure = {
+    'job-seeker': {
+      main: [
+        { href: '/dashboard/job-seeker', label: 'Dashboard', icon: <LayoutGrid />, description: 'Overview and statistics' },
+        { href: '/dashboard/ai-assistant', label: 'AI Assistant', icon: <Bot />, description: 'Get career guidance' },
+      ],
+      'Job Search': [
+        { href: '/dashboard/resumes', label: 'My Resumes', icon: <FileText />, description: 'Upload and manage resumes' },
+        { href: '/dashboard/jobs', label: 'Browse Jobs', icon: <Search />, description: 'Find available positions' },
+        { href: '/dashboard/job-seeker/matches', label: 'Job Matches', icon: <Target />, description: 'AI-powered recommendations' },
+        { href: '/dashboard/job-seeker/applications', label: 'My Applications', icon: <Send />, description: 'Track applications' },
+      ],
+      'Account': [
+        { href: '/dashboard/profile', label: 'Profile', icon: <User />, description: 'Manage your profile' },
+        { href: '/dashboard/analytics', label: 'Analytics', icon: <BarChart3 />, description: 'View your statistics' },
+        { href: '/dashboard/settings', label: 'Settings', icon: <Settings />, description: 'Account settings' },
+      ]
+    },
+    'recruiter': {
+      main: [
+        { href: '/dashboard/recruiter', label: 'Dashboard', icon: <LayoutGrid />, description: 'Recruitment overview' },
+        { href: '/dashboard/ai-assistant', label: 'AI Assistant', icon: <Bot />, description: 'Get hiring guidance' },
+      ],
+      'Recruitment': [
+        { href: '/dashboard/jobs/manage', label: 'Manage Jobs', icon: <Briefcase />, description: 'Create and edit postings' },
+        { href: '/dashboard/recruiter/applications', label: 'Applications', icon: <Users />, description: 'Review candidates' },
+        { href: '/dashboard/candidates', label: 'Candidates', icon: <UserCheck />, description: 'Browse profiles' },
+      ],
+      'Analytics': [
+        { href: '/dashboard/analytics', label: 'Hiring Analytics', icon: <BarChart3 />, description: 'Recruitment metrics' },
+        { href: '/dashboard/reports', label: 'Reports', icon: <FileBarChart />, description: 'Generate reports' },
+      ],
+      'Account': [
+        { href: '/dashboard/profile', label: 'Profile', icon: <User />, description: 'Manage your profile' },
+        { href: '/dashboard/settings', label: 'Settings', icon: <Settings />, description: 'Account settings' },
+      ]
+    }
+  };
+
+  const currentNav = navigationStructure[userRole as keyof typeof navigationStructure] || navigationStructure['job-seeker'];
 
   return (
-    <Sidebar>
-      <SidebarHeader>
-        <span className="font-bold text-lg">AI Resume Parser</span>
+    <Sidebar className="border-r">
+      <SidebarHeader className="border-b p-4">
+        <Link href="/dashboard" className="flex items-center gap-2 font-bold text-lg hover:text-primary transition-colors">
+          <Bot className="h-6 w-6 text-primary" />
+          AI Resume Parser
+        </Link>
+        <p className="text-xs text-muted-foreground mt-1">
+          {userRole === 'recruiter' ? 'Recruitment Platform' : 'Career Development Platform'}
+        </p>
       </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarMenu>
-          {[...commonItems,
-            ...(userRole === 'recruiter' ? hrItems : []),
-            ...(userRole === 'jobseeker' ? jobSeekerItems : []),
-            ...(userRole === 'admin' ? adminItems : []),
-          ].map((item) => (
-            <SidebarMenuItem key={item.href}>
-              <Link href={item.href} className={pathname === item.href ? 'font-bold text-primary' : ''}>
-                {item.icon} {item.label}
-              </Link>
-            </SidebarMenuItem>
+      <SidebarContent className="p-2">
+        <SidebarMenu className="space-y-1">
+          {Object.entries(currentNav).map(([sectionName, items]) => (
+            <div key={sectionName} className="space-y-1">
+              {sectionName !== 'main' && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => toggleSection(sectionName)}
+                    className="w-full justify-between text-sm font-medium text-muted-foreground hover:text-foreground px-2 py-1.5"
+                  >
+                    <span>{sectionName}</span>
+                    {expandedSections.has(sectionName) ? 
+                      <ChevronDown className="h-4 w-4" /> : 
+                      <ChevronRight className="h-4 w-4" />
+                    }
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
+              
+              {(sectionName === 'main' || expandedSections.has(sectionName)) && (
+                <div className={sectionName !== 'main' ? 'ml-2 space-y-1' : 'space-y-1'}>
+                  {items.map((item) => (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton asChild>
+                        <Link 
+                          href={item.href} 
+                          className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors group ${
+                            pathname === item.href 
+                              ? 'bg-primary text-primary-foreground' 
+                              : 'hover:bg-accent hover:text-accent-foreground'
+                          }`}
+                        >
+                          <span className="flex-shrink-0">{item.icon}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium truncate">{item.label}</p>
+                            {item.description && (
+                              <p className="text-xs opacity-70 truncate hidden lg:block">{item.description}</p>
+                            )}
+                          </div>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
-
-          <SidebarMenuItem>
-            <Link href="/dashboard/settings" className={pathname === '/dashboard/settings' ? 'font-bold text-primary flex items-center gap-2' : 'flex items-center gap-2'}>
-              <Settings /> Settings
-            </Link>
-          </SidebarMenuItem>
-
-          <SidebarMenuItem>
-            <ThemeToggle />
-          </SidebarMenuItem>
-
-          <SidebarMenuItem>
-            <Button variant="ghost" className="w-full flex items-center gap-2" onClick={handleLogout}>
-              <LogOut /> Logout
-            </Button>
-          </SidebarMenuItem>
         </SidebarMenu>
+
+        <div className="mt-auto pt-4 border-t space-y-1">
+          <SidebarMenuItem>
+            <div className="px-2 py-1">
+              <ThemeToggle />
+            </div>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Link href="/dashboard/help" className="flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors hover:bg-accent hover:text-accent-foreground">
+                <LifeBuoy className="h-4 w-4" />
+                <span>Help & Support</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              onClick={handleLogout}
+              className="flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors hover:bg-destructive hover:text-destructive-foreground w-full"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Logout</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </div>
       </SidebarContent>
     </Sidebar>
   );
