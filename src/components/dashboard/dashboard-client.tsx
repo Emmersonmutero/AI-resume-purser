@@ -9,63 +9,104 @@ import { JobMatches } from "./job-matches";
 import { handleResumeUpload, getUserResumes } from "@/lib/actions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Terminal, Bot, Briefcase, Users, CheckCircle } from "lucide-react";
+import { Terminal, Bot, Briefcase, Users, CheckCircle, RefreshCw } from "lucide-react";
 import { MatchScoreChart } from "./match-score-chart";
 import { JobMatchesSummaryChart } from "./job-matches-summary-chart";
 import { JobDistributionChart } from "./job-distribution-chart";
 import { Skeleton } from "../ui/skeleton";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
+import { dataService, type DashboardData } from '@/lib/data-service';
+import { useToast } from "@/hooks/use-toast";
 
 export default function DashboardClient() {
-  const [processedData, setProcessedData] = useState<ProcessedResumeData | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const router = useRouter();
+  const { toast } = useToast();
 
-  const fetchExistingResume = async () => {
+  const fetchDashboardData = async () => {
     setInitialLoading(true);
-    const existingResume: UserResume | null = await getUserResumes();
-    if (existingResume) {
-      setProcessedData(existingResume.processedData);
+    setError(null);
+    try {
+      const data = await dataService.getDashboardData();
+      setDashboardData(data);
+    } catch (error: any) {
+      setError(error.message || 'Failed to load dashboard data');
+      toast({
+        title: "Error",
+        description: "Failed to load dashboard data. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setInitialLoading(false);
     }
-    setInitialLoading(false);
-  }
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      const data = await dataService.refreshDashboard();
+      setDashboardData(data);
+      toast({
+        title: "Dashboard Refreshed",
+        description: "Your dashboard has been updated with the latest data.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Refresh Failed",
+        description: "Failed to refresh dashboard data. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    fetchExistingResume();
+    fetchDashboardData();
   }, []);
 
 
   const onResumeUpload = async (formData: FormData) => {
     setIsLoading(true);
     setError(null);
-    setProcessedData(null);
     try {
-      const result = await handleResumeUpload(formData);
+      const file = formData.get('resume') as File;
+      const result = await dataService.uploadResume(file);
       if (result.error) {
         setError(result.error);
+        toast({
+          title: "Upload Failed",
+          description: result.error,
+          variant: "destructive",
+        });
       } else if (result.data) {
-        setProcessedData(result.data);
+        // Refresh dashboard data after successful upload
+        await fetchDashboardData();
+        toast({
+          title: "Resume Uploaded",
+          description: "Your resume has been processed and analyzed successfully.",
+        });
       }
-    } catch (e) {
-      setError("An unexpected error occurred. Please try again.");
+    } catch (error: any) {
+      setError(error.message || 'An unexpected error occurred.');
+      toast({
+        title: "Upload Error",
+        description: error.message || 'An unexpected error occurred.',
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const getMatchStats = () => {
-    if (!processedData) return { totalJobs: 0, goodMatches: 0, greatMatches: 0 };
-    return {
-      totalJobs: processedData.matches.length,
-      goodMatches: processedData.matches.filter(m => m.matchScore >= 0.7 && m.matchScore < 0.85).length,
-      greatMatches: processedData.matches.filter(m => m.matchScore >= 0.85).length,
-    }
-  }
-
-  const stats = getMatchStats();
+  const hasResumeData = dashboardData?.resumes && dashboardData.resumes.length > 0;
+  const processedData = hasResumeData ? dashboardData.resumes[0].processedData : null;
+  const stats = dashboardData?.stats || { totalJobs: 0, goodMatches: 0, greatMatches: 0 };
 
   if (initialLoading) {
     return (
@@ -132,9 +173,15 @@ export default function DashboardClient() {
         <>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <h1 className="text-xl sm:text-2xl font-bold font-headline">Your Dashboard</h1>
-                <Button onClick={() => router.push('/dashboard/resumes')} size="sm" className="self-start sm:self-auto">
-                    Manage My Resumes
-                </Button>
+                <div className="flex gap-2">
+                  <Button onClick={handleRefresh} variant="outline" size="sm" disabled={isRefreshing} className="self-start sm:self-auto">
+                    <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                    {isRefreshing ? 'Refreshing...' : 'Refresh'}
+                  </Button>
+                  <Button onClick={() => router.push('/dashboard/resumes')} size="sm" className="self-start sm:self-auto">
+                      Manage My Resumes
+                  </Button>
+                </div>
             </div>
             <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3">
                 <Card className="hover:shadow-md transition-shadow">
