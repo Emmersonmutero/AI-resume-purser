@@ -43,6 +43,11 @@ export default function Navbar() {
           <ThemeToggle className="navbar__theme-toggle" />
           {user && <NotificationBell />}
           {user && <ProfileDropdown />}
+          {user && (
+            <button onClick={logout} className="navbar__button navbar__button--secondary">
+              Logout
+            </button>
+          )}
         </div>
 
         <nav className={`navbar__nav ${isMenuOpen ? "navbar__nav--open" : ""}`}>

@@ -32,7 +32,8 @@ export const ROUTES = {
   // Shared routes
   PROFILE: '/profile',
   SETTINGS: '/settings',
-  HELP: '/help'
+  HELP: '/help',
+  LOGOUT: '/logout'
 };
 
 // Route groups for role-based access
