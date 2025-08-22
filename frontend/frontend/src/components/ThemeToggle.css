@@ -1,0 +1,84 @@
+/* Theme Toggle Component */
+.theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.theme-toggle:hover {
+  background-color: var(--color-surface);
+}
+
+.theme-toggle:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.theme-toggle-track {
+  width: 48px;
+  height: 24px;
+  background-color: var(--color-border);
+  border-radius: 12px;
+  position: relative;
+  transition: background-color var(--transition-normal);
+}
+
+.theme-toggle:hover .theme-toggle-track {
+  background-color: var(--color-primary-light);
+}
+
+[data-theme="dark"] .theme-toggle-track {
+  background-color: var(--color-surface-elevated);
+}
+
+[data-theme="dark"] .theme-toggle:hover .theme-toggle-track {
+  background-color: var(--color-border-light);
+}
+
+.theme-toggle-thumb {
+  width: 20px;
+  height: 20px;
+  background-color: var(--color-surface-elevated);
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-normal);
+  box-shadow: var(--shadow-sm);
+}
+
+.theme-toggle-thumb.dark {
+  transform: translateX(24px);
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.theme-icon {
+  font-size: 10px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Animation for smooth theme transition */
+* {
+  transition: background-color var(--transition-normal), 
+              border-color var(--transition-normal), 
+              color var(--transition-normal);
+}
+
+/* Override transition for specific elements that should be instant */
+.theme-toggle,
+.theme-toggle-track,
+.theme-toggle-thumb {
+  transition: all var(--transition-fast);
+}

@@ -1,0 +1,54 @@
+.profile-page {
+  padding: var(--space-8);
+}
+
+.profile-page h1 {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-8);
+}
+
+.profile-page__content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8);
+}
+
+.profile-page__form-container {
+  background: var(--color-background-card);
+  padding: var(--space-8);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+.profile-page__form-container h2 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-6);
+}
+
+.form-group {
+  margin-bottom: var(--space-4);
+}
+
+.form-group label {
+  display: block;
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--space-2);
+  color: var(--color-text-secondary);
+}
+
+.form-group input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-medium);
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+}
+
+.form-group input:disabled {
+  background: var(--color-background-tertiary);
+  cursor: not-allowed;
+}

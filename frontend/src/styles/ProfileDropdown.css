@@ -1,0 +1,121 @@
+.profile-dropdown {
+  position: relative;
+}
+
+.profile-dropdown__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-1);
+  border-radius: var(--radius-full);
+  transition: var(--transition-fast);
+}
+
+.profile-dropdown__toggle:hover {
+  background: var(--glass-background);
+}
+
+.profile-dropdown__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color-primary-200);
+}
+
+.profile-dropdown__username {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.profile-dropdown__caret {
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-tertiary);
+  transition: var(--transition-fast);
+}
+
+.profile-dropdown__caret.open {
+  transform: rotate(180deg);
+}
+
+.profile-dropdown__menu {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  background: var(--color-background-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border-light);
+  width: 240px;
+  z-index: var(--z-index-dropdown);
+  overflow: hidden;
+  animation: dropdown-fade-in var(--transition-fast);
+}
+
+.profile-dropdown__header {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.profile-dropdown__name {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  display: block;
+}
+
+.profile-dropdown__role {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-transform: capitalize;
+}
+
+.profile-dropdown__body {
+  padding: var(--space-2) 0;
+}
+
+.profile-dropdown__item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.profile-dropdown__item:hover {
+  background: var(--glass-background);
+  color: var(--color-text-primary);
+}
+
+.profile-dropdown__footer {
+  border-top: 1px solid var(--color-border-light);
+  padding: var(--space-2) 0;
+}
+
+.profile-dropdown__logout {
+  color: var(--color-error-600);
+}
+
+.profile-dropdown__logout:hover {
+  background: var(--color-error-50);
+  color: var(--color-error-700);
+}
+
+@keyframes dropdown-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

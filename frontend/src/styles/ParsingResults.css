@@ -1,0 +1,48 @@
+.parsing-results-page {
+  padding: var(--space-8);
+}
+
+.parsing-results-page h1 {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-8);
+}
+
+.results-list {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.result-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-background-card);
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+.result-info {
+  flex-grow: 1;
+}
+
+.file-name {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-1);
+}
+
+.accuracy {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.fields {
+  color: var(--color-text-tertiary);
+}
+
+.result-actions {
+  display: flex;
+  gap: var(--space-4);
+}

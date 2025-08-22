@@ -1,0 +1,18 @@
+.dropzone {
+  border: 2px dashed var(--color-border-medium);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.dropzone.active {
+  border-color: var(--color-primary-500);
+  background-color: var(--color-primary-50);
+}
+
+.dropzone p {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}

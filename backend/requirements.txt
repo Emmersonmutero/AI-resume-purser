@@ -1,0 +1,28 @@
+# --- Core backend ---
+fastapi
+uvicorn[standard]
+python-dotenv
+
+# --- Machine Learning / Embeddings ---
+sentence-transformers
+torch
+numpy
+
+# --- LLM Client (Groq) ---
+groq
+
+# --- Data handling ---
+pydantic
+typing-extensions
+
+# --- Firebase / Firestore ---
+firebase-admin
+google-cloud-firestore
+
+# --- Resume Parsing ---
+pdfminer.six
+python-docx
+mammoth
+
+# --- Optional: useful tools ---
+requests

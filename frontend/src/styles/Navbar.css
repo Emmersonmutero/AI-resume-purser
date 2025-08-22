@@ -1,0 +1,365 @@
+/* Modern Navbar with Design System */
+
+.navbar {
+  background: var(--color-background-card);
+  backdrop-filter: var(--glass-backdrop-blur);
+  border-bottom: 1px solid var(--color-border-light);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-index-fixed);
+  transition: var(--transition-normal);
+  box-shadow: var(--shadow-sm);
+}
+
+.navbar__container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--space-4) var(--space-6);
+}
+
+.navbar__brand {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--color-primary-600);
+  font-family: var(--font-family-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-xl);
+  gap: var(--space-3);
+  transition: var(--transition-fast);
+}
+
+.navbar__brand:hover {
+  color: var(--color-primary-700);
+  transform: translateY(-1px);
+}
+
+.navbar__logo {
+  width: 32px;
+  height: 32px;
+  stroke: currentColor;
+  transition: var(--transition-fast);
+}
+
+.navbar__brand-text {
+  letter-spacing: var(--letter-spacing-tight);
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-secondary-600));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.navbar__menu-button {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-2);
+  border-radius: var(--radius-lg);
+  transition: var(--transition-fast);
+  color: var(--color-text-secondary);
+}
+
+.navbar__menu-button:hover {
+  background: var(--glass-background);
+  color: var(--color-primary-600);
+}
+
+.navbar__menu-button svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+}
+
+/* Actions container for theme toggle and notifications */
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-right: var(--space-4);
+}
+
+.navbar__theme-toggle {
+  /* Specific styling handled in ThemeToggle.css */
+}
+
+.navbar__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.navbar__link {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
+  transition: var(--transition-fast);
+  position: relative;
+}
+
+.navbar__link:hover {
+  color: var(--color-primary-600);
+  background: var(--glass-background);
+  transform: translateY(-1px);
+}
+
+.navbar__link:active {
+  transform: translateY(0);
+}
+
+.navbar__profile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: var(--space-4);
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--color-border-light);
+}
+
+.navbar__role {
+  color: var(--color-primary-600);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  background: var(--color-primary-50);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-primary-200);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.navbar__button {
+  font-family: var(--font-family-primary);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+}
+
+.navbar__button--primary {
+  background: var(--color-primary-600);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-sm);
+}
+
+.navbar__button--primary:hover {
+  background: var(--color-primary-700);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.navbar__button--primary:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+.navbar__button--secondary {
+  background: transparent;
+  color: var(--color-primary-600);
+  border-color: var(--color-primary-600);
+}
+
+.navbar__button--secondary:hover {
+  background: var(--color-primary-600);
+  color: var(--color-text-inverse);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 1024px) {
+  .navbar__container {
+    padding: var(--space-3) var(--space-4);
+  }
+  
+  .navbar__actions {
+    margin-right: var(--space-3);
+  }
+  
+  .navbar__nav {
+    gap: var(--space-4);
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar__container {
+    padding: var(--space-3);
+  }
+  
+  .navbar__brand-text {
+    display: none;
+  }
+  
+  .navbar__actions {
+    margin-right: var(--space-2);
+    gap: var(--space-1);
+  }
+  
+  .navbar__menu-button {
+    display: block;
+    order: 1;
+  }
+  
+  .navbar__nav {
+    position: absolute;
+    top: 100%;
+    right: var(--space-4);
+    left: var(--space-4);
+    background: var(--glass-background);
+    backdrop-filter: var(--glass-backdrop-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    padding: var(--space-4);
+    flex-direction: column;
+    gap: var(--space-2);
+    z-index: var(--z-index-dropdown);
+    display: none;
+    animation: mobileNavSlideIn var(--transition-normal);
+  }
+  
+  .navbar__nav--open {
+    display: flex;
+  }
+  
+  .navbar__link {
+    width: 100%;
+    padding: var(--space-3);
+    text-align: center;
+    border-radius: var(--radius-lg);
+  }
+  
+  .navbar__profile {
+    width: 100%;
+    justify-content: center;
+    margin-left: 0;
+    padding-left: 0;
+    border-left: none;
+    border-top: 1px solid var(--color-border-light);
+    padding-top: var(--space-3);
+    margin-top: var(--space-2);
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar__actions {
+    gap: var(--space-1);
+  }
+  
+  .navbar__nav {
+    right: var(--space-2);
+    left: var(--space-2);
+  }
+}
+
+@keyframes mobileNavSlideIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(-12px) scale(0.95);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Role-specific Navbar Styles - Updated for new design system */
+.navbar--hr {
+  background: var(--color-background-card);
+  border-bottom-color: var(--color-warning-200);
+}
+
+.navbar--hr .navbar__brand-text {
+  background: linear-gradient(135deg, var(--color-warning-600), var(--color-primary-600));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.navbar--hr .navbar__role {
+  background: var(--color-warning-50);
+  color: var(--color-warning-700);
+  border-color: var(--color-warning-200);
+}
+
+.navbar--candidate {
+  background: var(--color-background-card);
+  border-bottom-color: var(--color-success-200);
+}
+
+.navbar--candidate .navbar__brand-text {
+  background: linear-gradient(135deg, var(--color-success-600), var(--color-primary-600));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.navbar--candidate .navbar__role {
+  background: var(--color-success-50);
+  color: var(--color-success-700);
+  border-color: var(--color-success-200);
+}
+
+.navbar--admin {
+  background: var(--color-background-card);
+  border-bottom-color: var(--color-secondary-200);
+}
+
+.navbar--admin .navbar__brand-text {
+  background: linear-gradient(135deg, var(--color-secondary-600), var(--color-primary-600));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.navbar--admin .navbar__role {
+  background: var(--color-secondary-50);
+  color: var(--color-secondary-700);
+  border-color: var(--color-secondary-200);
+}
+
+/* Focus states for accessibility */
+.navbar__brand:focus-visible,
+.navbar__link:focus-visible,
+.navbar__button:focus-visible,
+.navbar__menu-button:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .navbar,
+  .navbar__brand,
+  .navbar__logo,
+  .navbar__menu-button,
+  .navbar__link,
+  .navbar__button {
+    transition: none;
+  }
+  
+  .navbar__nav {
+    animation: none;
+  }
+  
+  .navbar__brand:hover,
+  .navbar__link:hover,
+  .navbar__button:hover,
+  .navbar__button:active {
+    transform: none;
+  }
+}
